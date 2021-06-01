@@ -6,7 +6,7 @@ function getDashboardHtml(rooms, lights) {
     </h1>
     <div id="roomSelecters">`;
 
-  let bottomDivs = `</div></div></div> <div class="col-md-8 "><div class="h-100 p-3 text-white bg-dark border rounded-3">  `;
+  let bottomDivs = `</div></div></div> <div class="col-md-8 "><div id="lightSelecters" class="h-100 p-3 text-white bg-dark border rounded-3">  `;
   let bottomHtml = "</div>";
 
   for (const room of rooms) {
@@ -79,8 +79,12 @@ function setRoomState_click(id) {
 }
 
 function selectRoom_click(id) {
-  if (selectedRoom !== id) {
-    console.log(id)
-    selectedRoom = id;
-  }
+  let html = "";
+  getHueLights().then(lights => {
+    for (const light of lights) {
+      if (allRoom[String(id-1)].lightsInRoom.includes(String(light.id)))
+        html += makeLightSelecter(light);
+    }
+    document.getElementById("lightSelecters").innerHTML = html;
+  });
 }

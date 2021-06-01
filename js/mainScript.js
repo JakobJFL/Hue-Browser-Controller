@@ -1,5 +1,5 @@
 let acc;
-let selectedRoom = 0;
+let allRoom = {};
 document.getElementById("loginFrom").addEventListener("submit", setDashboard);
 
 function setDashboard() {
@@ -30,7 +30,6 @@ function getHueRooms() {
             console.log()
             let rooms = [];
             let fistIndex = Object.keys(data)[0];
-            selectedRoom = fistIndex;
             let lastIndex = Object.keys(data).length;
             for (let i = fistIndex; i <= lastIndex; i++) {
                 let roomObj = {
@@ -39,10 +38,13 @@ function getHueRooms() {
                     bri: data[String(i)].action.bri,
                     ct: data[String(i)].action.ct,
                     xy: data[String(i)].action.xy,
+                    lightsInRoom: data[String(i)].lights,
                     id: i
                 }
+
                 rooms.push(roomObj);
             }
+            allRoom = rooms;
             resolve(rooms)
         });
     });
