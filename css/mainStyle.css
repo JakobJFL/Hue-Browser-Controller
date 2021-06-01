@@ -1,0 +1,41 @@
+.roomSelecter {
+    padding: 12px 0px 0px 0px;
+	font-size: 14pt;
+    color: rgb(87, 87, 87);
+    text-align: left;
+    width: 100%;
+    background-color: #000000;
+}
+
+.btn-refresh {
+    float: right;
+}
+
+.lightSelecter {
+	font-size: 14pt;
+    color: rgb(87, 87, 87);
+    width: 150px;
+    height: 75px;
+    padding: 9px 0px 15px 0px;
+    text-align: center;
+    background-color: #000000;
+    margin: 6px;
+}
+
+.nowrapTxt {
+    padding: 0px 5px 0px 5px;
+    width: 150px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.textRoom {
+    padding: 0px 15px 12px 15px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+
