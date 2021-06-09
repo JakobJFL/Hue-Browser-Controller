@@ -1,10 +1,20 @@
 .roomSelecter {
-    padding: 12px 0px 0px 0px;
-	font-size: 14pt;
+    padding: 12px 1px 3px 1px;
+    background-color: #000000;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.roomBtn {
+    font-size: 14pt;
     color: #575757;
     text-align: left;
-    width: 100%;
-    background-color: #000000;
+    width: 75%;
+}
+
+.roomBtn:focus {
+    outline: none !important;
+    box-shadow: none;
 }
 
 .btn-refresh {
@@ -32,10 +42,23 @@
 }
 
 .textRoom {
-    padding: 0px 15px 12px 15px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+.top-bar-right {
+    margin-left: auto;
+    order: 2;
+    visibility: hidden;
+}
+
+.top-bar-right:hover {
+    cursor: pointer;
+}
+
+.top-bar {
+    display: flex;
 }
 
 

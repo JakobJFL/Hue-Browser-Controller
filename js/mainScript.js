@@ -1,9 +1,11 @@
-let acc;
 let allRoom = {};
+let selectedRoomID = 1;
 document.getElementById("loginFrom").addEventListener("submit", setDashboard);
+checkLocalStorage();
 
 function setDashboard() {
-    getAccess();
+    document.getElementById("logOutBtn").style.visibility = "visible";
+    document.getElementById("logOutBtn").addEventListener("click", logOut);
     setDashboardElements();
 }
 
@@ -13,18 +15,42 @@ function setDashboardElements() {
             let dashboard = document.getElementById("dashboard");
             dashboard.innerHTML = getDashboardHtml(rooms, lights);
             document.getElementById("refreshBtn").addEventListener("click", setDashboardElements); 
-        });
-    });
+        }).catch(err => console.error(err));
+    }).catch(err => console.error(err));
 }
 
-function getAccess() {
-    acc = {
-        token: document.getElementById("accessToken").value,
-        ip: document.getElementById("ipAddress").value
+function checkLocalStorage() { // find a better solution
+    if (localStorage.getItem('hueAcc')) {
+        setDashboard();
     }
 }
 
+function getAccess() {
+    let acc = {};
+    let localAcc = localStorage.getItem('hueAcc');
+    if (localAcc) {
+        acc = JSON.parse(localAcc);
+    }
+    else if (document.getElementById("accessToken")) {
+        acc = {
+            token: document.getElementById("accessToken").value,
+            ip: document.getElementById("ipAddress").value
+        };
+        localStorage.setItem('hueAcc', JSON.stringify(acc)); 
+    }
+    else {
+        console.error("logIn error")
+    }
+    return acc;
+}
+
+function logOut(){
+    localStorage.removeItem("hueAcc");
+    location.reload();
+}
+
 function getHueRooms() {
+    let acc = getAccess();
     return new Promise((resolve, reject) => {
         getRequest('http://'+acc.ip+'/api/'+acc.token+'/groups').then(data => {
             console.log()
@@ -45,12 +71,13 @@ function getHueRooms() {
                 rooms.push(roomObj);
             }
             allRoom = rooms;
-            resolve(rooms)
-        });
+            resolve(rooms);
+        }).catch(err => reject(err));
     });
 }
 
 function getHueLights() {
+    let acc = getAccess();
     return  new Promise((resolve, reject) => {
         getRequest('http://'+acc.ip+'/api/'+acc.token+'/lights').then(data => {
             let lights = [];
@@ -67,9 +94,7 @@ function getHueLights() {
                 lights.push(roomObj);
                 i++;
             }
-            resolve(lights)
-        });
+            resolve(lights);
+        }).catch(err => reject(err));
     });
 }
-
-

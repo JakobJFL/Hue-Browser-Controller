@@ -4,6 +4,7 @@ function changeRoomState(selectRoomId, setOn, setBri) {
             on: setOn,
             bri: Number(setBri)
         };
+        let acc = getAccess();
         let url = 'http://'+acc.ip+'/api/'+acc.token+'/groups/'+selectRoomId+'/action/';
         putRequest(url, json).then(response => {
             resolve(response);

@@ -14,7 +14,8 @@ function getDashboardHtml(rooms, lights) {
   }
   html += bottomDivs;
   for (const light of lights) {
-    html += makeLightSelecter(light);
+    if (allRoom[String(selectedRoomID)].lightsInRoom.includes(String(light.id)))
+      html += makeLightSelecter(light);
   }
   html += bottomHtml;
   return html;
@@ -38,15 +39,14 @@ function makeRoomSelecter(name, on, id, xy, ct, bri) {
   }
   else 
     sliderDisabled = 'style="display:none"';
-  return `<button type="button" onclick="selectRoom_click(${id});" style="background: linear-gradient(to right, rgb(${firstColor}) 0%, rgb(${secondColor}) 100%);" class="btn roomSelecter my-2">
-    <div class="textRoom">${name}
-      <label class="switch swRight">
-        <input type="checkbox" id="roomSwitch${id}" onclick="setRoomState_click(${id});" ${checkedStr}>
-        <span class="slider"></span>
-      </label>   
-    </div>
+  return `<div class="roomSelecter my-3" style="background: linear-gradient(to right, rgb(${firstColor}) 0%, rgb(${secondColor}) 100%);" class="btn roomSelecter my-2">
+  <button class="btn roomBtn" onclick="selectRoom_click(${id});">${name}</button>
+    <label class="switch swRight">
+      <input type="checkbox" id="roomSwitch${id}" onclick="setRoomState_click(${id});" ${checkedStr}>
+      <span class="slider"></span>
+    </label>   
     <input type="range" min="0" max="255" value="${bri}" ${sliderDisabled} class="sliderBar" id="roomSlider${id}" onchange="setRoomState_click(${id})">
-  </button>`
+</div>`
 }
 
 function makeLightSelecter(light) {
@@ -78,11 +78,12 @@ function setRoomState_click(id) {
   });
 }
 
-function selectRoom_click(id) {
+function selectRoom_click(roomId) {
   let html = "";
+  selectedRoomID = roomId-1;
   getHueLights().then(lights => {
     for (const light of lights) {
-      if (allRoom[String(id-1)].lightsInRoom.includes(String(light.id)))
+      if (allRoom[String(selectedRoomID)].lightsInRoom.includes(String(light.id)))
         html += makeLightSelecter(light);
     }
     document.getElementById("lightSelecters").innerHTML = html;
