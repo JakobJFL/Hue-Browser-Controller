@@ -89,6 +89,7 @@ function getHueLights() {
                     bri: data[String(i)].state.bri,
                     ct: data[String(i)].state.ct,
                     xy: data[String(i)].state.xy,
+                    hue: data[String(i)].state.hue,
                     id: i
                 }
                 lights.push(roomObj);

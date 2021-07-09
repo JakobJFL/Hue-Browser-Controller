@@ -14,6 +14,58 @@
     transition: opacity .2s;
 }
 
+.hueSlider {
+    margin: 5px 0px 5px 0px;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 30px;
+    border-radius: 7px;
+    background: linear-gradient(to right, red, yellow, rgb(0, 255, 0), cyan, blue, rgb(255, 0, 255), red); /* Standard syntax (must be last) */
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.briSlider {
+    margin: 5px 0px 5px 0px;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 30px;
+    border-radius: 7px;
+    background: linear-gradient(to right, #000, #fff); /* Standard syntax (must be last) */
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.satSlider {
+    margin: 5px 0px 5px 0px;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 30px;
+    border-radius: 7px;
+    background: linear-gradient(to right, #fff, #ff0000); /* Standard syntax (must be last) */
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.tempSlider {
+    margin: 5px 0px 5px 0px;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 30px;
+    border-radius: 7px;
+    background: linear-gradient(to right, #759aff, #f8d745); /* Standard syntax (must be last) */
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
 .sliderBar:hover {
     opacity: 1;
 }

@@ -24,7 +24,6 @@
           <a id="logOutBtn" class="nav-link top-bar-right">log Out</a>
         </div>
       </header>
-      
       <div class="row align-items-md-stretch" id="dashboard">
         <div class="col-md-4">
           <div class="h-100 p-4 text-white bg-dark border rounded-3">
@@ -52,23 +51,47 @@
           </div>
         </div>
         <div class="col-md-8">
-          <div class="h-100 p-3 text-white bg-dark border rounded-3">
-            <button type="button" class="btn lightSelecter my-2"> 
-              <div class="nowrapTxt">Kat lamdsffghfghgfh</div>
-              <input type="range" min="0" max="255" value="5" class="sliderBar" id="myRange">
-            </button>
-            <button type="button" class="btn lightSelecter my-2"><div class="nowrapTxt">Kat lamdsfpgfgfgffgfge</div>
-              <input type="range" min="0" max="255" value="5" class="sliderBar" id="myRange">  
-            </button>
-            <button type="button" class="btn lightSelecter my-2"><div class="nowrapTxt">Kat lamdsfpgfgfgffgfge</div>
-              <input type="range" min="0" max="255" value="5" class="sliderBar" id="myRange">  
-            </button>
-            <button type="button" class="btn lightSelecter my-2"><div class="nowrapTxt">Kat lamdsfpgfgfgffgfge</div>
-              <input type="range" min="0" max="255" value="5" class="sliderBar" id="myRange">  
-            </button>
-            <button type="button" class="btn lightSelecter my-2"><div class="nowrapTxt">Kat lamdsfpgfgfgffgfge</div>
-              <input type="range" min="0" max="255" value="5" class="sliderBar" id="myRange">  
-            </button>
+          <div class="h-100 p-3 text-white bg-dark border rounded-3 d-flex align-content-start flex-wrap" id="lightSelecters">
+            <div class="lightSelecter my-2"> 
+              <button type="button" class="btn nowrapTxt">Kat lamdsffghfghgfhfgfgdffdgfdg</button>
+              <button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup1" aria-expanded="true" aria-controls="pickerPopup1">v</button>
+              <div class="collapse" id="pickerPopup1" class="accordion-collapse collapse show" data-bs-parent="#lightSelecters">
+                <div class="card card-body pickerPopupCard">
+                    <input type="range" min="0" max="255" value="5" class="briSlider sliderBar" id="briSlider" onchange="hueSlider_change()">
+                    <input type="range" min="0" max="255" value="5" class="satSlider sliderBar" id="satSlider" onchange="hueSlider_change()">
+                    <input type="range" min="0" max="65535" value="5" class="hueSlider sliderBar" id="hueSlider" onchange="hueSlider_change()">
+                    <input type="range" min="153" max="500" value="200" class="tempSlider sliderBar" id="tempSlider" onchange="hueSlider_change()">
+                </div>
+              </div>
+            </div>
+            <div class="lightSelecter my-2"> 
+              <button type="button" class="btn nowrapTxt">Kat lamdsffghfghgfhfgfgdffdgfdg</button>
+              <button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup1" aria-expanded="true" aria-controls="pickerPopup1">v</button>
+              <div class="collapse" id="pickerPopup1" class="accordion-collapse collapse show" data-bs-parent="#lightSelecters">
+                <div class="card card-body pickerPopupCard">
+                    <input type="range" min="0" max="255" value="5" class="briSlider sliderBar" id="briSlider" onchange="hueSlider_change()">
+                    <input type="range" min="0" max="255" value="5" class="satSlider sliderBar" id="satSlider" onchange="hueSlider_change()">
+                    <input type="range" min="0" max="65535" value="5" class="hueSlider sliderBar" id="hueSlider" onchange="hueSlider_change()">
+                    <input type="range" min="153" max="500" value="200" class="tempSlider sliderBar" id="tempSlider" onchange="hueSlider_change()">
+                </div>
+              </div>
+            </div>
+            <div class="lightSelecter my-2"> 
+              <button type="button" class="btn nowrapTxt">Kat lamdsffghfghgfhfgfgdffdgfdg</button>
+              <button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup1" aria-expanded="true" aria-controls="pickerPopup1">v</button>
+              <div class="collapse" id="pickerPopup1" class="accordion-collapse collapse show" data-bs-parent="#lightsGroup">
+                <div class="card card-body pickerPopupCard">
+                    <input type="range" min="0" max="255" value="5" class="briSlider sliderBar" id="briSlider" onchange="hueSlider_change()">
+                    <input type="range" min="0" max="255" value="5" class="satSlider sliderBar" id="satSlider" onchange="hueSlider_change()">
+                    <input type="range" min="0" max="65535" value="5" class="hueSlider sliderBar" id="hueSlider" onchange="hueSlider_change()">
+                    <input type="range" min="153" max="500" value="200" class="tempSlider sliderBar" id="tempSlider" onchange="hueSlider_change()">
+                </div>
+              </div>
+            </div>
+ 
+
+            
+            
           </div>
         </div>
       </div>
@@ -82,5 +105,9 @@
   <script src="bootstrap-5.0.0-dist/js/bootstrap.js"></script>
   <script src="js/dashboardSite.js"></script>
   <script src="js/mainScript.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/actions.js"></script>
+  <script src="js/reactOnInput.js"></script>
+
 </body>
 </html>

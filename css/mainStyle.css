@@ -22,18 +22,18 @@
 }
 
 .lightSelecter {
+    border-radius: 4px;
 	font-size: 14pt;
     color: #575757;
     width: 190px;
     height: 85px;
-    padding: 20px 0px 15px 0px;
+    padding: 5px 0px 15px 0px;
     text-align: center;
     background-color: #000000;
     margin: 6px;
 }
 
 .nowrapTxt {
-    padding: 0px 5px 0px 5px;
     width: 100%;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -59,6 +59,15 @@
 
 .top-bar {
     display: flex;
+}
+
+.pickerActivator {
+    width: 100%;
+    color: #b3b3b3;
+}
+
+.pickerPopupCard {
+    background-color: #000000;
 }
 
 
