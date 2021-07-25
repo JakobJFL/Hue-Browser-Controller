@@ -6,7 +6,9 @@ function getDashboardHtml(rooms, lights) {
     </h1>
     <div id="roomSelecters">`;
 
-  let bottomDivs = `</div></div></div> <div class="col-md-8 "><div class="h-100 p-3 text-white bg-dark border rounded-3 d-flex align-content-start flex-wrap" id="lightSelecters">`;
+  let bottomDivs = `</div></div></div> 
+                    <div class="col-md-8 "><div class="h-100 p-3 text-white bg-dark border rounded-3 d-flex align-content-start flex-wrap" id="lightSelecters">
+                    <h1 class="display-8 my-2 w-100">Lights</h1>`;
   let bottomHtml = "</div>";
 
   for (const room of rooms) {
@@ -53,7 +55,7 @@ function makeLightSelecter(light) {
   let colorConv = new ColorConverter();
   let color = "";
   let sliders = `<input type="range" min="0" max="255" value="${light.bri}" class="briSlider sliderBar" id="briSlider${light.id}" onchange="briSlider_change(${light.id})">`;
-
+  let pickersCollapse = "";
   if (light.on) {
     color = "255, 233, 191";
     if (light.xy) {
@@ -65,14 +67,15 @@ function makeLightSelecter(light) {
       color = colorConv.colorTempToRGB(1000000/(light.ct-200)); // Mired to kelvin, -200 for celebration https://en.wikipedia.org/wiki/Mired
       sliders += `<input type="range" min="153" max="500" value="${light.ct}" class="tempSlider sliderBar" id="tempSlider${light.id}" onchange="tempSlider_change(${light.id})">`;
     }
+    pickersCollapse = `<button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup${light.id}" aria-expanded="true" aria-controls="pickerPopup${light.id}">v</button>
+      <div class="collapse" id="pickerPopup${light.id}" class="accordion-collapse collapse show" data-bs-parent="#lightSelecters">
+        <div class="card card-body pickerPopupCard">
+            ${sliders}
+        </div>
+      </div>`;
   }
   return `<div class="lightSelecter my-2" style="background-color: rgb(${color})"> 
   <button type="button" class="btn nowrapTxt" onclick="setLightState_click(${light.id}, ${light.on})">${light.name}</button>
-  <button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup${light.id}" aria-expanded="true" aria-controls="pickerPopup${light.id}">v</button>
-  <div class="collapse" id="pickerPopup${light.id}" class="accordion-collapse collapse show" data-bs-parent="#lightSelecters">
-    <div class="card card-body pickerPopupCard">
-        ${sliders}
-    </div>
-  </div>
+    ${pickersCollapse}
   </div>`
 }

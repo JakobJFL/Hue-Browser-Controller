@@ -19,7 +19,9 @@ function tempSlider_change(lightId){
 }
 
 function sliderChange(lightId, jsonObj) {
-    putRequest("http://192.168.50.92/api/2k78Rv8rHLmg-hkpeR6YyZEgZFzSp9oJC4zVWx03/lights/"+lightId+"/state", jsonObj)
+    let acc = getAccess();
+    let url = 'http://'+acc.ip+'/api/'+acc.token+'/lights/'+lightId+'/state/';
+    putRequest(url, jsonObj)
     //.then(() => setDashboardElements()) // Refresh html
     .catch(err => console.error(err))
 }
