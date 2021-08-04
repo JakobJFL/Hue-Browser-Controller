@@ -12,9 +12,11 @@ function setDashboard() {
 function setDashboardElements() {
     getHueRooms().then(rooms => {   
         getHueLights().then(lights => {
-            let dashboard = document.getElementById("dashboard");
-            dashboard.innerHTML = getDashboardHtml(rooms, lights);
-            document.getElementById("refreshBtn").addEventListener("click", setDashboardElements); 
+            getHueScenes().then(scenes => {
+                let dashboard = new DashboardPage(rooms, lights, scenes); 
+                document.getElementById("dashboard").innerHTML = dashboard.getHtml();
+                document.getElementById("refreshBtn").addEventListener("click", setDashboardElements); 
+            }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }).catch(err => console.error(err));
 }
@@ -53,7 +55,6 @@ function getHueRooms() {
     let acc = getAccess();
     return new Promise((resolve, reject) => {
         getRequest('http://'+acc.ip+'/api/'+acc.token+'/groups').then(data => {
-            console.log()
             let rooms = [];
             let fistIndex = Object.keys(data)[0];
             let lastIndex = Object.keys(data).length;
@@ -96,6 +97,26 @@ function getHueLights() {
                 i++;
             }
             resolve(lights);
+        }).catch(err => reject(err));
+    });
+}
+
+function getHueScenes() {
+    let acc = getAccess();
+    return  new Promise((resolve, reject) => {
+        getRequest('http://'+acc.ip+'/api/'+acc.token+'/scenes').then(data => {
+            let scenes = [];
+            for (const [key, value] of Object.entries(data)) {
+                if (value.type === "GroupScene") {
+                    let sceneObj = {
+                        key: key,
+                        name: value.name,
+                        group: value.group
+                    }
+                    scenes.push(sceneObj); 
+                }
+            }
+            resolve(scenes);
         }).catch(err => reject(err));
     });
 }

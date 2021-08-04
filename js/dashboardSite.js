@@ -1,26 +1,48 @@
-function getDashboardHtml(rooms, lights) {
-  let html = `<div class="col-md-4">
-  <div class="h-100 p-4 text-white bg-dark border rounded-3">
-    <h1 class="display-8">Rooms
-      <button id="refreshBtn" class="btn btn-secondary btn-refresh">Refresh</button>
-    </h1>
-    <div id="roomSelecters">`;
-
-  let bottomDivs = `</div></div></div> 
-                    <div class="col-md-8 "><div class="h-100 p-3 text-white bg-dark border rounded-3 d-flex align-content-start flex-wrap" id="lightSelecters">
-                    <h1 class="display-8 my-2 w-100">Lights</h1>`;
-  let bottomHtml = "</div>";
-
-  for (const room of rooms) {
-    html += makeRoomSelecter(room.name, room.on, room.id, room.xy, room.ct, room.bri);
+class DashboardPage {
+  constructor(rooms, lights, scenes) {
+    this.rooms = rooms;
+    this.lights = lights;
+    this.scenes = scenes;
   }
-  html += bottomDivs;
-  for (const light of lights) {
-    if (allRoom[String(selectedRoomID)].lightsInRoom.includes(String(light.id)))
-      html += makeLightSelecter(light);
+  getHtml() {
+    let rommsHtml = `<div class="col-md-4">
+                     <div class="h-100 p-4 text-white bg-dark border rounded-3">
+                      <h1 class="display-8">Rooms
+                        <button id="refreshBtn" class="btn btn-secondary btn-refresh">Refresh</button>
+                      </h1>
+                      <div id="roomSelecters">`
+    let allHtml = rommsHtml;
+    
+    let lightsHtml = `</div></div></div> 
+                      <div class="col-md-8">
+                      <div class="row row-cols-1">
+                      <div class="h-100 p-3 text-white bg-dark border rounded-3 d-flex align-content-start flex-wrap" id="lightSelecters">
+                      <h1 class="display-8 my-2 w-100">Lights</h1>`;
+
+    let sceenHtml = `</div><div class="col h-100 p-4 mt-2 text-white bg-dark border rounded-3" id="sceneSelecters">
+                     <h1 class="display-8 my-2 w-100">Scenes</h1>`
+
+    let bottomHtml = "</div></div></div></div>";
+  
+    for (const room of this.rooms) {
+      allHtml += makeRoomSelecter(room.name, room.on, room.id, room.xy, room.ct, room.bri);
+    }
+
+    allHtml += lightsHtml;
+    for (const light of this.lights) {
+      if (allRoom[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
+      allHtml += makeLightSelecter(light);
+    }
+
+    allHtml += sceenHtml;
+    for (const scene of this.scenes) {
+      if (selectedRoomID === Number(scene.group))
+        allHtml += makeSceneSelecter(scene);
+    }
+    allHtml += bottomHtml;
+    return allHtml;
+
   }
-  html += bottomHtml;
-  return html;
 }
 
 function makeRoomSelecter(name, on, id, xy, ct, bri) {
@@ -42,13 +64,13 @@ function makeRoomSelecter(name, on, id, xy, ct, bri) {
   else 
     sliderDisabled = 'style="display:none"';
   return `<div class="roomSelecter my-3" style="background: linear-gradient(to right, rgb(${firstColor}) 0%, rgb(${secondColor}) 100%);" class="btn roomSelecter my-2">
-  <button class="btn roomBtn" onclick="selectRoom_click(${id});">${name}</button>
-    <label class="switch swRight">
-      <input type="checkbox" id="roomSwitch${id}" onclick="setRoomState_click(${id})" ${checkedStr}>
-      <span class="slider"></span>
-    </label>   
-    <input type="range" min="0" max="255" value="${bri}" ${sliderDisabled} class="sliderBar" id="roomSlider${id}" onchange="setRoomState_click(${id})">
-</div>`
+          <button class="btn roomBtn" onclick="selectRoom_click(${id});">${name}</button>
+            <label class="switch swRight">
+              <input type="checkbox" id="roomSwitch${id}" onclick="setRoomState_click(${id})" ${checkedStr}>
+              <span class="slider"></span>
+            </label>   
+            <input type="range" min="0" max="254" value="${bri}" ${sliderDisabled} class="sliderBar" id="roomSlider${id}" onchange="setRoomState_click(${id})">
+        </div>`
 }
 
 function makeLightSelecter(light) {
@@ -79,3 +101,8 @@ function makeLightSelecter(light) {
     ${pickersCollapse}
   </div>`
 }
+
+function makeSceneSelecter(scene) {
+  return `<button type="button" class="btn sceneSelecter nowrapTxt my-2" onclick="selectScene_click('${scene.key}');">${scene.name}</button>`
+}
+

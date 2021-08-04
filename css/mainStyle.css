@@ -1,6 +1,6 @@
 .roomSelecter {
     padding: 12px 1px 3px 1px;
-    background-color: #000000;
+    background-color: #000;
     border-radius: 5px;
     width: 100%;
 }
@@ -29,7 +29,7 @@
     height: 85px;
     padding: 5px 0px 15px 0px;
     text-align: center;
-    background-color: #000000;
+    background-color: #000;
     margin: 6px;
 }
 
@@ -67,7 +67,18 @@
 }
 
 .pickerPopupCard {
-    background-color: #000000;
+    background-color: #000;
 }
 
+.sceneSelecter {
+    border-radius: 4px;
+	font-size: 14pt;
+    color: #dddddd;
+    width: 190px;
+    height: 85px;
+    padding: 5px 0px 15px 0px;
+    text-align: center;
+    background-color: #000;
+    margin: 6px;
+}
 
