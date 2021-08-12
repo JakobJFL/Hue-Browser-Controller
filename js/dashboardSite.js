@@ -4,22 +4,32 @@ class DashboardPage {
     this.lights = lights;
     this.scenes = scenes;
   }
-  getHtml() {
+  getHtml() { 
+    let header = `<div class="container py-4">
+      <header class="pb-3 mb-4">
+        <div class="top-bar">
+          <a class="d-flex align-items-center text-dark text-decoration-none">
+            <span class="fs-4">Hue Browser Controller</span>
+          </a>
+          <a id="logOutBtn" class="nav-link top-bar-right">log Out</a>
+        </div>
+      </header>
+      <div class="row align-items-md-stretch">`;
     let rommsHtml = `<div class="col-md-4">
-                     <div class="h-100 p-4 text-white bg-dark border rounded-3">
+                     <div class="h-100 p-4 text-white bg-dark rounded-3">
                       <h1 class="display-8">Rooms
                         <button id="refreshBtn" class="btn btn-secondary btn-refresh">Refresh</button>
                       </h1>
-                      <div id="roomSelecters">`
-    let allHtml = rommsHtml;
+                      <div id="roomSelecters">`                     
+    let allHtml = header+rommsHtml;
     
     let lightsHtml = `</div></div></div> 
                       <div class="col-md-8">
-                      <div class="row row-cols-1">
-                      <div class="h-100 p-3 text-white bg-dark border rounded-3 d-flex align-content-start flex-wrap" id="lightSelecters">
+                      <div class="row row-cols-1 margin-0">
+                      <div class="p-3 text-white bg-dark rounded-3 d-flex align-content-start flex-wrap" id="lightSelecters">
                       <h1 class="display-8 my-2 w-100">Lights</h1>`;
 
-    let sceenHtml = `</div><div class="col h-100 p-4 mt-2 text-white bg-dark border rounded-3" id="sceneSelecters">
+    let sceenHtml = `</div><div class="p-4 mt-2 text-white bg-dark rounded-3" id="sceneSelecters">
                      <h1 class="display-8 my-2 w-100">Scenes</h1>`
 
     let bottomHtml = "</div></div></div></div>";
@@ -60,8 +70,7 @@ function makeRoomSelecter(name, on, id, xy, ct, bri) {
       firstColor = colorConv.xyBriToRgb(xy[0], xy[1], 255); // todo: Fix color
     else if (ct) 
       firstColor = colorConv.colorTempToRGB(1000000/(ct-200)); // Mired to kelvin, -200 for celebration https://en.wikipedia.org/wiki/Mired
-  }
-  else 
+  } else 
     sliderDisabled = 'style="display:none"';
   return `<div class="roomSelecter my-3" style="background: linear-gradient(to right, rgb(${firstColor}) 0%, rgb(${secondColor}) 100%);" class="btn roomSelecter my-2">
           <button class="btn roomBtn" onclick="selectRoom_click(${id});">${name}</button>
@@ -84,8 +93,7 @@ function makeLightSelecter(light) {
       color = colorConv.xyBriToRgb(light.xy[0], light.xy[1], 255); // todo: Fix color
       sliders += `<input type="range" min="0" max="255" value="${light.sat}" class="satSlider sliderBar" id="satSlider${light.id}" onchange="satSlider_change(${light.id})">
       <input type="range" min="0" max="65535" value="${light.hue}" class="hueSlider sliderBar" id="hueSlider${light.id}" onchange="hueSlider_change(${light.id})">`;
-    }                                               // ^^^^ Hue does not change
-    else if (light.ct) {
+    } else if (light.ct) {                          // ^^^^ Hue does not change
       color = colorConv.colorTempToRGB(1000000/(light.ct-200)); // Mired to kelvin, -200 for celebration https://en.wikipedia.org/wiki/Mired
       sliders += `<input type="range" min="153" max="500" value="${light.ct}" class="tempSlider sliderBar" id="tempSlider${light.id}" onchange="tempSlider_change(${light.id})">`;
     }

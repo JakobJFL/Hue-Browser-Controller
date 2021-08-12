@@ -1,3 +1,9 @@
+body {
+    background-image: linear-gradient(0, #7c9ffd, #83b9ff, #6b97ff);
+    background-attachment: fixed;
+    height: 100vh;
+}
+
 .roomSelecter {
     padding: 12px 1px 3px 1px;
     background-color: #000;
@@ -9,7 +15,7 @@
     font-size: 14pt;
     color: #575757;
     text-align: left;
-    width: 75%;
+    width: 70%;
 }
 
 .roomBtn:focus {
@@ -21,16 +27,30 @@
     float: right;
 }
 
+div {
+   transition: all .3s ease-in-out;
+}
+
+.margin-0 {
+    margin: 0px;
+}
+
+@media only screen and (max-width: 992px) {
+    .margin-0 {
+        margin: 8px 0px 0px 0px;
+    }
+}
+
 .lightSelecter {
     border-radius: 4px;
 	font-size: 14pt;
     color: #575757;
-    width: 190px;
+    width: 32.1%;
     height: 85px;
     padding: 5px 0px 15px 0px;
     text-align: center;
     background-color: #000;
-    margin: 6px;
+    margin: 0.6%;
 }
 
 .nowrapTxt {
@@ -50,7 +70,6 @@
 .top-bar-right {
     margin-left: auto;
     order: 2;
-    visibility: hidden;
 }
 
 .top-bar-right:hover {
@@ -74,11 +93,19 @@
     border-radius: 4px;
 	font-size: 14pt;
     color: #dddddd;
-    width: 190px;
+    width: 23.8%;
     height: 85px;
     padding: 5px 0px 15px 0px;
     text-align: center;
     background-color: #000;
-    margin: 6px;
+    margin: 0.6%;
 }
 
+@media only screen and (max-width: 720px) {
+    .lightSelecter {
+        width: 48.4%;
+    }
+    .sceneSelecter {
+        width: 48.4%;
+    }
+}

@@ -21,15 +21,16 @@ function tempSlider_change(lightId){
 function setRoomState_click(id) {
   let isChecked = document.getElementById("roomSwitch"+id).checked;
   let getBri = document.getElementById("roomSlider"+id).value;
-  new actions().changeRoomState(id, isChecked, getBri).then(() => setDashboardElements()); // Refresh html
+  new actions().changeRoomState(id, isChecked, getBri).then(() => setDashboard()); // Refresh html
 }
   
 function selectRoom_click(roomId) {
-  let lightHtml = `<h1 class="display-8 my-2 w-100">Lights</h1>`;
+  let lightHtml = `<h1 class="display-8 my-2 w-100">Lights </h1>`;
   let scenehtml = `<h1 class="display-8 my-2 w-100">Scenes</h1>`;
   selectedRoomID = roomId;
-  getHueLights().then(lights => {
-    getHueScenes().then(scenes => {
+  let acc = getAccess();
+  getHueLights(acc).then(lights => {
+    getHueScenes(acc).then(scenes => {
       for (const light of lights) {
         if (allRoom[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
         lightHtml += makeLightSelecter(light);
@@ -45,15 +46,15 @@ function selectRoom_click(roomId) {
 }
   
 function setLightState_click(id, isOn) {  
-  new actions().changeLightState(id, !isOn).then(() => setDashboardElements()); // Refresh html
+  new actions().changeLightState(id, !isOn).then(() => setDashboard()); // Refresh html
 }
 
 function setLightRange_change(id, isOn) {  
   let getBri = document.getElementById("lightSlider"+id).value;
-  new actions().changeLightState(id, isOn, getBri).then(() => setDashboardElements()); // Refresh html
+  new actions().changeLightState(id, isOn, getBri).then(() => setDashboard()); // Refresh html
 }
 
 function selectScene_click(key) {
-  new actions().changeScene(selectedRoomID, key).then(() => setDashboardElements()); // Refresh html
+  new actions().changeScene(selectedRoomID, key).then(() => setDashboard()); // Refresh html
 }
   
