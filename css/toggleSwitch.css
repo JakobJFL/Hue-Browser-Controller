@@ -55,3 +55,28 @@ input:checked + .slider:before {
     -ms-transform: translateX(26px);
     transform: translateX(26px);
 }
+
+
+
+input:checked + .refreshSwitch {
+    background-color: #383838;
+    border: #353535;
+    color: #c5c5c5;
+}
+
+.refreshSwitch {
+    width: 120px;
+    height: 40px;
+    margin-top: 8px;
+}
+
+.refreshLabel {
+    position: relative;
+    float: none;
+}
+
+.refreshLabel input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}

@@ -1,5 +1,5 @@
-let allRoom = {};
-let selectedRoomID = 1;
+let allRooms = {};
+let selectedRoomID = -1;
 
 function logOut(){
     localStorage.removeItem("hueAcc");
@@ -36,7 +36,7 @@ function getHueRooms(acc) {
 
                 rooms.push(roomObj);
             }
-            allRoom = rooms;
+            allRooms = rooms;
             resolve(rooms);
         }).catch(err => reject(err));
     });
@@ -82,4 +82,37 @@ function getHueScenes(acc) {
             resolve(scenes);
         }).catch(err => reject(err));
     });
+}
+
+function autoRefresh() {
+    if (document.getElementById("refreshSwitchBtn").checked) {
+        let refreshInterval = setInterval(refreshIntervalFun, 1000);
+        function refreshIntervalFun() {
+            refreshLightRooms();
+            if (!document.getElementById("refreshSwitchBtn").checked)
+                clearInterval(refreshInterval)
+        }
+    }
+}
+
+function refreshLightRooms() {
+    /*
+    let lightHtml = `<h1 class="display-8 my-2 w-100">Lights </h1>`;
+    let roomHtml ="";
+    let acc = getAccess();
+    
+    getHueLights(acc).then(lights => {
+        getHueRooms(acc).then(rooms => {
+            for (const room of rooms) {
+                roomHtml += makeRoomSelecter(room.name, room.on, room.id, room.xy, room.ct, room.bri);
+            }
+            for (const light of lights) {
+              if (allRooms[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
+                    lightHtml += makeLightSelecter(light);
+            }
+            document.getElementById("lightSelecters").innerHTML = lightHtml;
+            document.getElementById("roomSelecters").innerHTML = roomHtml;
+        }).catch(err => console.error(err));
+    }).catch(err => console.error(err));
+    */
 }

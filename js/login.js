@@ -133,10 +133,12 @@ function loginExistingCon() {
 }
 
 function setDashboard() {
-    getDashboard(getAccess()).then(dashboard => {
-        document.getElementById("mainSight").innerHTML = dashboard.getHtml();
-        document.getElementById("refreshBtn").addEventListener("click", setDashboard); 
+    let acc = getAccess();
+    getDashboard(acc).then(dashboard => {
+        document.getElementById("mainSight").innerHTML = dashboard.getHtml(acc);
+        document.getElementById("refreshSwitchBtn").addEventListener("change", autoRefresh); 
         document.getElementById("logOutBtn").addEventListener("click", logOut);
+        autoRefresh();
     }).catch(err => {
         console.error(err);
     });

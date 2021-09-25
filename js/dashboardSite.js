@@ -4,23 +4,55 @@ class DashboardPage {
     this.lights = lights;
     this.scenes = scenes;
   }
-  getHtml() { 
+  getHtml(acc) { 
     let header = `<div class="container py-4">
       <header class="pb-3 mb-4">
         <div class="top-bar">
           <a class="d-flex align-items-center text-dark text-decoration-none">
             <span class="fs-4">Hue Browser Controller</span>
           </a>
-          <a id="logOutBtn" class="nav-link top-bar-right">log Out</a>
+          <div class="d-flex flex-row-reverse top-bar-right">
+            <a id="logOutBtn" class="nav-link">Log Out</a>
+            <a id="logOutBtn" class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#SettingsModal" >Settings</a>
+          </div>
         </div>
+
+        <!-- SettingsModal -->
+        <div class="modal fade" id="SettingsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title text-white" id="exampleModalLabel">Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <h3 class="fs-5 text-muted">Hue info</h3>
+                <table class="table">
+                  <tbody>
+                    <tr><th class="text-muted" scope="row">IP Addres:</th><td>${acc.ip}</td></tr>
+                    <tr><th class="text-muted" scope="row">Access token:</th><td>${acc.token}</td> </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </header>
       <div class="row align-items-md-stretch">`;
     let rommsHtml = `<div class="col-md-4">
                      <div class="h-100 p-4 text-white bg-dark rounded-3">
-                      <h1 class="display-8">Rooms
-                        <button id="refreshBtn" class="btn btn-secondary btn-refresh">Refresh</button>
-                      </h1>
-                      <div id="roomSelecters">`                     
+                      <div class="d-flex flex-row justify-content-between">
+                        <h1 class="display-8">Rooms</h1>
+                        <label class="refreshLabel">
+                          <input type="checkbox" id="refreshSwitchBtn">
+                          <div class="btn btn-secondary refreshSwitch">Auto refresh</div>
+                        </label>   
+                      </div>
+                    <div id="roomSelecters">`                     
     let allHtml = header+rommsHtml;
     
     let lightsHtml = `</div></div></div> 
@@ -38,15 +70,18 @@ class DashboardPage {
       allHtml += makeRoomSelecter(room.name, room.on, room.id, room.xy, room.ct, room.bri);
     }
 
+    if (selectedRoomID === -1) 
+      selectedRoomID = allRooms[0].id;
+
     allHtml += lightsHtml;
     for (const light of this.lights) {
-      if (allRoom[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
-      allHtml += makeLightSelecter(light);
+      if (allRooms[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
+        allHtml += makeLightSelecter(light);
     }
 
     allHtml += sceenHtml;
     for (const scene of this.scenes) {
-      if (selectedRoomID === Number(scene.group))
+      if (selectedRoomID == scene.group)
         allHtml += makeSceneSelecter(scene);
     }
     allHtml += bottomHtml;

@@ -4,6 +4,23 @@ body {
     height: 100vh;
 }
 
+.modal-header {
+    background-color: rgb(39, 39, 39);
+}
+
+.nav-link {
+    color: #141414;
+}
+
+.modal-footer {
+    border-top: 0 none;
+}
+
+.modal-content {
+    border: #f1f1f1;
+    background-color: #ececec;
+}
+
 .roomSelecter {
     padding: 12px 1px 3px 1px;
     background-color: #000;
@@ -21,10 +38,6 @@ body {
 .roomBtn:focus {
     outline: none !important;
     box-shadow: none;
-}
-
-.btn-refresh {
-    float: right;
 }
 
 div {

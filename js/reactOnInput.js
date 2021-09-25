@@ -32,7 +32,7 @@ function selectRoom_click(roomId) {
   getHueLights(acc).then(lights => {
     getHueScenes(acc).then(scenes => {
       for (const light of lights) {
-        if (allRoom[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
+        if (allRooms[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
         lightHtml += makeLightSelecter(light);
       }
       for (const scene of scenes) {
@@ -57,4 +57,5 @@ function setLightRange_change(id, isOn) {
 function selectScene_click(key) {
   new actions().changeScene(selectedRoomID, key).then(() => setDashboard()); // Refresh html
 }
+
   
