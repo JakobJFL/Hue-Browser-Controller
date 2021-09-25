@@ -6,13 +6,17 @@ checkLocalStorage();
 let interval;
 
 function startNewConnection(event) {
-    const refreshTime = 1500;
-    document.getElementById("autoConnect").innerHTML = 
-        `<p class="text-center">Looking for a bridge on your network...</p>
-        <img id="loadingImg" src="img/loading.svg">`;
-    clearInterval(interval);
     if (event.target.id === "newConnection") {
-        getRequest("https://discovery.meethue.com/").then(res => {
+        document.getElementById("errAutoBox").style.visibility = "hidden";
+        const refreshTime = 1500;
+        let timesPostSend = 0;
+        document.getElementById("autoConnect").innerHTML = 
+            `<p class="text-center">Looking for a bridge on your network...</p>
+            <img id="loadingImg" src="img/loading.svg">`;
+        clearInterval(interval);
+        getRequest("https://discovery.meethue.com/").then(resGet => {
+            if (!resGet[0].id || !resGet[0].internalipaddress) 
+                throw new Error("Could not find a Hue bridge, try and enter the Hue bridge IP manually");
             document.getElementById("autoConnect").innerHTML = 
             `<p class="text-center">Found IP. Press the link button on the Hue bridge</p>
             <img id="loadingImg" src="img/push-link.png">`;
@@ -21,21 +25,38 @@ function startNewConnection(event) {
                 devicetype: "Hue-Browser-Controller",
             }
             interval = setInterval(function() {
-                for (const data of res) {
-                    postRequest("http://"+data.internalipaddress+"/api/",jsonObj).then(res => {
-                        if (Object.keys(res[0])[0] !== "error") {
+                if (timesPostSend > 20)
+                    showNewConError("The link button wasn't pressed in time, please try again");       
+                timesPostSend++;
+                let timesFailed = 0;
+                for (const data of resGet) {
+                    postRequest("http://"+data.internalipaddress+"/api/",jsonObj).then(resPost => {
+                        if (!data.internalipaddress.startsWith("192")) // Assume that all IPs starts with 192)
+                            throw new Error("no192Start"); 
+                        if (Object.keys(resPost[0])[0] !== "error") {
                             clearInterval(interval);
-                            showSuccess(data.internalipaddress, res[0].success.username);
+                            showSuccess(data.internalipaddress, resPost[0].success.username);
                         }
                     }).catch(err => {
-                        let errMsgBox = document.getElementById("errAutoBox");
-                        errMsgBox.style.visibility = "visible";
-                        if (err != "Error: Timeout")    
-                            showNewConError("Timeout Error - try and enter the Hue bridge IP manually");                     
+                        timesFailed++;
+                        if (timesFailed === resGet.length)
+                            showNewConError("Timeout - got no response from the Hue bridge. Check your and the bridges network connection");
+                        else if (err != "Error: AbortTimeout" && err != "Error: no192Start") 
+                            showNewConError("Error - try and enter the Hue bridge IP manually");
                     });
                 }
             }, refreshTime);
+        }).catch(err => {
+            if (err == "TypeError: Failed to fetch")  
+                showNewConError("No connection - possible network error, check network connection"); 
+            else if (err == "Error: Timeout")  
+                showNewConError("Timeout - got no response from the Hue bridge. Check your and the bridges network connection"); 
+            else 
+                showNewConError(err); 
         });
+    }
+    else if (event.target.id === "existingConnection") {
+        clearInterval(interval);
     }
 }
 
@@ -81,6 +102,7 @@ function showSuccess(ip, accessToken) {
 }
 
 function showNewConError(err) {
+    document.getElementById("autoConnect").innerHTML = ``;    
     let errMsgBox = document.getElementById("errAutoBox");
     errMsgBox.style.visibility = "visible";
     errMsgBox.innerText = err;
@@ -99,7 +121,14 @@ function loginExistingCon() {
     }).catch(err => {
         let errMsgBox = document.getElementById("errFromBox");
         errMsgBox.style.visibility = "visible";
-        errMsgBox.innerText = err;
+        if (err == "TypeError: Failed to fetch")  
+            errMsgBox.innerText = "No connection - network error, check network connection or IP Address";
+        else if (err == "Error: AbortTimeout")  
+            errMsgBox.innerText = "Timeout - Check IP Address or network connection";
+        else if (err == "Error: unauthorized user")  
+            errMsgBox.innerText = "Wrong access token";
+        else 
+            errMsgBox.innerText = err;
     });
 }
 
@@ -126,6 +155,6 @@ async function getDashboard(acc) {
 
 function checkLocalStorage() { // find a better solution
     if (localStorage.getItem('hueAcc')) {
-        loginExistingCon();
+        setDashboard();
     }
 }

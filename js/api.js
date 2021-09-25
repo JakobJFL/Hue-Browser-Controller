@@ -18,7 +18,7 @@ function postRequest(url, json) {
     return new Promise(function(resolve, reject) {
         const controller = new AbortController();
         setTimeout(function() {
-            reject(new Error("Timeout"));
+            reject(new Error("AbortTimeout"));
             controller.abort()
         }, timeoutTime);
         fetch(url, {
@@ -52,7 +52,7 @@ function connectionGood(acc) {
     return new Promise(function(resolve, reject) {
         const controller = new AbortController();
         setTimeout(function() {
-            reject(new Error("Timeout"));
+            reject(new Error("AbortTimeout"));
             controller.abort()
         }, timeoutTime);
         fetch('http://'+acc.ip+'/api/'+acc.token, {
@@ -68,8 +68,7 @@ function connectionGood(acc) {
             else {
                 throw new Error("Unknown error occurred");
             }
-        })
-        .catch(err => reject(err));
+        }).catch(err => reject(err));
     });
 }
 
