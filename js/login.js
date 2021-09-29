@@ -15,7 +15,7 @@ function startNewConnection(event) {
             <img id="loadingImg" src="img/loading.svg">`;
         clearInterval(interval);
         getRequest("https://discovery.meethue.com/").then(resGet => {
-            if (!resGet[0].id || !resGet[0].internalipaddress) 
+            if (!resGet[0] || !resGet[0].id || !resGet[0].internalipaddress) 
                 throw new Error("Could not find a Hue bridge, try and enter the Hue bridge IP manually");
             document.getElementById("autoConnect").innerHTML = 
             `<p class="text-center">Found IP. Press the link button on the Hue bridge</p>
@@ -52,7 +52,7 @@ function startNewConnection(event) {
             else if (err == "Error: Timeout")  
                 showNewConError("Timeout - got no response from the Hue bridge. Check your and the bridges network connection"); 
             else 
-                showNewConError(err); 
+                showNewConError(err.message); 
         });
     }
     else if (event.target.id === "existingConnection") {
@@ -128,7 +128,7 @@ function loginExistingCon() {
         else if (err == "Error: unauthorized user")  
             errMsgBox.innerText = "Wrong access token";
         else 
-            errMsgBox.innerText = err;
+            errMsgBox.innerText = err.message;
     });
 }
 
