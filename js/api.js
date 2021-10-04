@@ -34,7 +34,6 @@ function postRequest(url, json) {
         .then(data => resolve(data))
         .catch(err => reject(err));
     });
-    
 }
 
 function getRequest(url) {

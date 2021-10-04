@@ -4,12 +4,12 @@ document.getElementById("manuallyIpBtn").addEventListener("click", manuallyNewCo
 
 checkLocalStorage();
 let interval;
+const refreshTime = 1500;
+const postJsonObj = {devicetype: "Hue-Browser-Controller"};
 
 function startNewConnection(event) {
     if (event.target.id === "newConnection") {
         document.getElementById("errAutoBox").style.visibility = "hidden";
-        const refreshTime = 1500;
-        let timesPostSend = 0;
         document.getElementById("autoConnect").innerHTML = 
             `<p class="text-center">Looking for a bridge on your network...</p>
             <img id="loadingImg" src="img/loading.svg">`;
@@ -18,34 +18,9 @@ function startNewConnection(event) {
             if (!resGet[0] || !resGet[0].id || !resGet[0].internalipaddress) 
                 throw new Error("Could not find a Hue bridge, try and enter the Hue bridge IP manually");
             document.getElementById("autoConnect").innerHTML = 
-            `<p class="text-center">Found IP. Press the link button on the Hue bridge</p>
-            <img id="loadingImg" src="img/push-link.png">`;
-
-            let jsonObj = {
-                devicetype: "Hue-Browser-Controller",
-            }
-            interval = setInterval(function() {
-                if (timesPostSend > 20)
-                    showNewConError("The link button wasn't pressed in time, please try again");       
-                timesPostSend++;
-                let timesFailed = 0;
-                for (const data of resGet) {
-                    postRequest(data.internalipaddress+"/api/",jsonObj).then(resPost => {
-                        if (!data.internalipaddress.startsWith("192")) // Assume that all IPs starts with 192)
-                            throw new Error("no192Start"); 
-                        if (Object.keys(resPost[0])[0] !== "error") {
-                            clearInterval(interval);
-                            showSuccess(data.internalipaddress, resPost[0].success.username);
-                        }
-                    }).catch(err => {
-                        timesFailed++;
-                        if (timesFailed === resGet.length)
-                            showNewConError("Timeout - got no response from the Hue bridge. Check your and the bridges network connection");
-                        else if (err != "Error: AbortTimeout" && err != "Error: no192Start") 
-                            showNewConError("Error - try and enter the Hue bridge IP manually");
-                    });
-                }
-            }, refreshTime);
+                `<p class="text-center">Found IP. Press the link button on the Hue bridge</p>
+                <img id="loadingImg" src="img/push-link.png">`;
+            findRightIp(resGet);
         }).catch(err => {
             if (err == "TypeError: Failed to fetch")  
                 showNewConError("No connection - possible network error, check network connection"); 
@@ -60,29 +35,50 @@ function startNewConnection(event) {
     }
 }
 
+function findRightIp(resGet) {
+    let timesFailed = 0;
+    for (const data of resGet) {
+        postRequest(data.internalipaddress+"/api/", postJsonObj).then(resPost => {
+            if (!data.internalipaddress.startsWith("192")) // Assume that all IPs starts with 192)
+                throw new Error("no192Start"); 
+            if (resPost[0].error.type == 101) 
+                if (setupLinkButton(data.internalipaddress)) 
+                    showNewConError("Error - try and enter the Hue bridge IP manually");
+        }).catch(err => {
+            if (timesFailed === resGet.length)
+                showNewConError("Timeout - got no response from the Hue bridge. Check your and the bridges network connection");
+            else if (err != "Error: AbortTimeout" && err != "Error: no192Start" && err != "TypeError: Failed to fetch") 
+                showNewConError("Error - try and enter the Hue bridge IP manually");
+        });
+    }
+}
+
+function setupLinkButton(ip) {
+    let timesPostSend = 0;
+    interval = setInterval(function() {
+        if (timesPostSend > 20)
+            showNewConError("The link button wasn't pressed in time, please try again");       
+        timesPostSend++;
+        postRequest(ip+"/api/", postJsonObj).then(resPost => {
+            if (Object.keys(resPost[0])[0] !== "error") {
+                clearInterval(interval);
+                showSuccess(ip, resPost[0].success.username);
+                return 0;
+            }
+        }).catch(function() {
+            return 1;
+        });
+    }, refreshTime);
+}
+
 function manuallyNewConnection() {
-    const refreshTime = 1500;
     document.getElementById("autoConnect").innerHTML = 
     `<p class="text-center">Manual setup</p>`;
     clearInterval(interval);
     document.getElementById("errAutoBox").style.visibility = "hidden";
     let ip = document.getElementById("manuallyIp").value;
-    let jsonObj = {
-        devicetype: "Hue-Browser-Controller",
-    }
-    interval = setInterval(function() {
-        postRequest(ip+"/api/",jsonObj).then(res => {
-            document.getElementById("autoConnect").innerHTML = 
-            `<p class="text-center">Manual setup - Press the link button on the Hue bridge</p>
-            <img id="loadingImg" src="img/push-link.png">`;
-            if (Object.keys(res[0])[0] !== "error") {
-                clearInterval(interval);
-                showSuccess(ip, res[0].success.username);
-            } 
-        }).catch(function() {
-            showNewConError("IP address doesn't work")
-        });
-    }, refreshTime);
+    if (setupLinkButton(ip))
+        showNewConError("Could not connect check the IP address doesn't work");
 }
 
 function showSuccess(ip, accessToken) {
