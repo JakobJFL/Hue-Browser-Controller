@@ -14,7 +14,7 @@ function startNewConnection(event) {
             `<p class="text-center">Looking for a bridge on your network...</p>
             <img id="loadingImg" src="img/loading.svg">`;
         clearInterval(interval);
-        getRequest("https://discovery.meethue.com/").then(resGet => {
+        getRequest("discovery.meethue.com/").then(resGet => {
             if (!resGet[0] || !resGet[0].id || !resGet[0].internalipaddress) 
                 throw new Error("Could not find a Hue bridge, try and enter the Hue bridge IP manually");
             document.getElementById("autoConnect").innerHTML = 
