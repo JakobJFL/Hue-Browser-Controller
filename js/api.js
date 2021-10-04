@@ -1,6 +1,6 @@
 function putRequest(url, json) {
     return new Promise(function(resolve, reject) {
-        fetch(url, {
+        fetch('https://'+url, {
             method: 'PUT', 
             headers: {
                 'Content-Type': 'application/json'
@@ -21,7 +21,7 @@ function postRequest(url, json) {
             reject(new Error("AbortTimeout"));
             controller.abort()
         }, timeoutTime);
-        fetch(url, {
+        fetch('https://'+url, {
             method: 'POST', 
             signal: controller.signal,
             headers: {
@@ -39,7 +39,7 @@ function postRequest(url, json) {
 
 function getRequest(url) {
     return new Promise(function(resolve, reject) {
-        fetch(url)
+        fetch('https://'+url)
         .then((response) => response.json())
         .then((data) => {
             resolve(data);
@@ -55,7 +55,7 @@ function connectionGood(acc) {
             reject(new Error("AbortTimeout"));
             controller.abort()
         }, timeoutTime);
-        fetch('http://'+acc.ip+'/api/'+acc.token, {
+        fetch('https://'+acc.ip+'/api/'+acc.token, {
             method: 'GET', 
             signal: controller.signal
         })

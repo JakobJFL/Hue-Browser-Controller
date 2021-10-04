@@ -30,7 +30,7 @@ function startNewConnection(event) {
                 timesPostSend++;
                 let timesFailed = 0;
                 for (const data of resGet) {
-                    postRequest("http://"+data.internalipaddress+"/api/",jsonObj).then(resPost => {
+                    postRequest(data.internalipaddress+"/api/",jsonObj).then(resPost => {
                         if (!data.internalipaddress.startsWith("192")) // Assume that all IPs starts with 192)
                             throw new Error("no192Start"); 
                         if (Object.keys(resPost[0])[0] !== "error") {
@@ -71,7 +71,7 @@ function manuallyNewConnection() {
         devicetype: "Hue-Browser-Controller",
     }
     interval = setInterval(function() {
-        postRequest("http://"+ip+"/api/",jsonObj).then(res => {
+        postRequest(ip+"/api/",jsonObj).then(res => {
             document.getElementById("autoConnect").innerHTML = 
             `<p class="text-center">Manual setup - Press the link button on the Hue bridge</p>
             <img id="loadingImg" src="img/push-link.png">`;

@@ -19,7 +19,7 @@ function getAccess() {
 
 function getHueRooms(acc) {
     return new Promise((resolve, reject) => {
-        getRequest('http://'+acc.ip+'/api/'+acc.token+'/groups').then(data => {
+        getRequest(acc.ip+'/api/'+acc.token+'/groups').then(data => {
             let rooms = [];
             let fistIndex = Object.keys(data)[0];
             let lastIndex = Object.keys(data).length;
@@ -44,7 +44,7 @@ function getHueRooms(acc) {
 
 function getHueLights(acc) {
     return  new Promise((resolve, reject) => {
-        getRequest('http://'+acc.ip+'/api/'+acc.token+'/lights').then(data => {
+        getRequest(acc.ip+'/api/'+acc.token+'/lights').then(data => {
             let lights = [];
             let i = 1;
             while (data[i]) {
@@ -67,7 +67,7 @@ function getHueLights(acc) {
 
 function getHueScenes(acc) {
     return  new Promise((resolve, reject) => {
-        getRequest('http://'+acc.ip+'/api/'+acc.token+'/scenes').then(data => {
+        getRequest(acc.ip+'/api/'+acc.token+'/scenes').then(data => {
             let scenes = [];
             for (const [key, value] of Object.entries(data)) {
                 if (value.type === "GroupScene") {
