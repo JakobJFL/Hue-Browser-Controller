@@ -5,6 +5,8 @@ function briSlider_change(lightId){
 
 function hueSlider_change(lightId){
   let obj = {hue: Number(document.getElementById("hueSlider"+lightId).value)};
+  document.getElementById(lightId).style.backgroundColor = `hsl(${obj.hue/(65535/360)}, 100%, 56%)`;
+  
   new actions().sliderChange(lightId, obj);
 }
 

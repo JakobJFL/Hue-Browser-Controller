@@ -83,7 +83,12 @@ function getHueScenes(acc) {
         }).catch(err => reject(err));
     });
 }
+function refresh() {
+    setDashboard();
+}
 
+
+/*
 function autoRefresh() {
     if (document.getElementById("refreshSwitchBtn").checked) {
         let refreshInterval = setInterval(refreshIntervalFun, 1000);
@@ -94,9 +99,9 @@ function autoRefresh() {
         }
     }
 }
-
+*/
+/*
 function refreshLightRooms() {
-    /*
     let lightHtml = `<h1 class="display-8 my-2 w-100">Lights </h1>`;
     let roomHtml ="";
     let acc = getAccess();
@@ -107,12 +112,12 @@ function refreshLightRooms() {
                 roomHtml += makeRoomSelecter(room.name, room.on, room.id, room.xy, room.ct, room.bri);
             }
             for (const light of lights) {
-              if (allRooms[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
+                if (allRooms[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id))) // THIS!!!!!!!!!!
                     lightHtml += makeLightSelecter(light);
             }
             document.getElementById("lightSelecters").innerHTML = lightHtml;
             document.getElementById("roomSelecters").innerHTML = roomHtml;
         }).catch(err => console.error(err));
     }).catch(err => console.error(err));
-    */
 }
+*/

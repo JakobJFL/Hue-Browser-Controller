@@ -1,6 +1,6 @@
 function putRequest(url, json) {
     return new Promise(function(resolve, reject) {
-        fetch('https://'+url, {
+        fetch('http://'+url, {
             method: 'PUT', 
             headers: {
                 'Content-Type': 'application/json'
@@ -21,7 +21,7 @@ function postRequest(url, json) {
             reject(new Error("AbortTimeout"));
             controller.abort()
         }, timeoutTime);
-        fetch('https://'+url, {
+        fetch('http://'+url, {
             method: 'POST', 
             signal: controller.signal,
             headers: {
@@ -38,11 +38,43 @@ function postRequest(url, json) {
 
 function getRequest(url) {
     return new Promise(function(resolve, reject) {
+        fetch('http://'+url)
+        .then((response) => response.json())
+        .then((data) => {
+            resolve(data);
+        }).catch(err => reject(err));
+    });
+}
+
+function getRequestSecure(url) {
+    return new Promise(function(resolve, reject) {
         fetch('https://'+url)
         .then((response) => response.json())
         .then((data) => {
             resolve(data);
         }).catch(err => reject(err));
+    });
+}
+
+function testIP(ip) {
+    const timeoutTime = 1000;
+    return new Promise(function(resolve, reject) {
+        const controller = new AbortController();
+        setTimeout(function() {
+            reject(new Error("AbortTimeout"));
+            controller.abort()
+        }, timeoutTime);
+        fetch('http://'+ip+'/api', {
+            method: 'GET', 
+            signal: controller.signal
+        })
+        .then(response => {
+            if (response.status == 200)
+                resolve(true);
+            else 
+                throw new Error("Unknown error occurred");
+        })
+        .catch(err => reject(err));
     });
 }
 
@@ -54,7 +86,7 @@ function connectionGood(acc) {
             reject(new Error("AbortTimeout"));
             controller.abort()
         }, timeoutTime);
-        fetch('https://'+acc.ip+'/api/'+acc.token, {
+        fetch('http://'+acc.ip+'/api/'+acc.token, {
             method: 'GET', 
             signal: controller.signal
         })

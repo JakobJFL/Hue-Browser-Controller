@@ -10,26 +10,34 @@
   <link rel="stylesheet" type="text/css" href="css/mainStyle.css">
   <link rel="stylesheet" type="text/css" href="css/toggleSwitch.css">
   <link rel="stylesheet" type="text/css" href="css/slider.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+  <link rel="manifest" href="favicon/site.webmanifest">
 
-  <title>Hue Controller</title>
+  <title>Online Hue Controller</title>
 </head>
 <body>
-  <main id="mainSight">
+  <main id="mainSite">
     <div class="container py-4">
       <div class="login-container">
         <div class="row">
           <div class="col-md-6">
-            <img src="img/lightHueBackgrund.jpg" id="loginImg">
+            <img src="img/Light Hue Backgrund.jpg" id="loginImg">
           </div>
-          <div class="col-md-6 right-side">
-            <h1 class="text-center display-5">Hue Browser Controller</h1>
-            <h2 class="text-center fs-4">Choose a connection:</h2>
+          <div class="col-md-6 right-side p-4">
+            <h1 class="text-center display-5">Online Hue Controller</h1>
+            <h2 class="text-center fs-4">Choose connection option:</h2>
             <div class="text-center">
               <button type="button" class="btn btn-primary btn-round" data-bs-toggle="collapse" data-bs-target="#newConnection">Create a new connection</button>
               <button type="button" class="btn btn-outline-primary btn-round" data-bs-toggle="collapse" data-bs-target="#existingConnection">Use existing connection</button>
             </div>
             <div id="connectionType">
-              <div class="collapse" id="existingConnection" class="accordion-collapse collapse show" data-bs-parent="#connectionType">
+              <div class="collapse show" id="placeholder" data-bs-parent="#connectionType">
+                <p class="text-center mt-4 fs-5">Welcome to a website where you can control all your Philips Hue lighting in your browser.</p>
+                <p class="text-center mb-4 ">Connect to the Philips Hue bridge by using an existing API connection or create a new one with the website's auto-connect feature. </p>
+              </div>
+              <div class="collapse accordion-collapse" id="existingConnection" data-bs-parent="#connectionType">
                 <br>
                 <form id="loginFrom" class="center-form w-75" action="javascript:void(0);">
                   <div class="mb-3">
@@ -46,7 +54,7 @@
                 </form>
                 <p class="errText pb-4" id="errFromBox"></p>
               </div>
-              <div class="collapse" id="newConnection" class="accordion-collapse collapse show" data-bs-parent="#connectionType">
+              <div class="collapse accordion-collapse" id="newConnection" data-bs-parent="#connectionType">
                 <br>
                 <div id="autoConnect">
                   <p class="text-center">Looking for a bridge on your network...</p>
@@ -63,7 +71,7 @@
               </div>
             </div>
           </div>
-          <footer class="text-muted bottom-text">
+          <footer class="text-muted bottom-text-left">
             <p class="text-center">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke</p>
           </footer>
         </div>  

@@ -46,7 +46,7 @@
     text-align: center;
 }
 
-.bottom-text {
+.bottom-text-left {
     bottom: 0px;
     left: 75%;
     transform: translate(-50%);

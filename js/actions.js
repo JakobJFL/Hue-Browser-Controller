@@ -39,7 +39,6 @@ class actions {
         let acc = getAccess();
         let url = acc.ip+'/api/'+acc.token+'/lights/'+lightId+'/state/';
         putRequest(url, jsonObj)
-        //.then(() => setDashboardElements()) // Refresh html
         .catch(err => console.error(err))
     }
 }

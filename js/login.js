@@ -14,7 +14,7 @@ function startNewConnection(event) {
             `<p class="text-center">Looking for a bridge on your network...</p>
             <img id="loadingImg" src="img/loading.svg">`;
         clearInterval(interval);
-        getRequest("discovery.meethue.com/").then(resGet => {
+        getRequestSecure("discovery.meethue.com/").then(resGet => {
             if (!resGet[0] || !resGet[0].id || !resGet[0].internalipaddress) 
                 throw new Error("Could not find a Hue bridge, try and enter the Hue bridge IP manually");
             document.getElementById("autoConnect").innerHTML = 
@@ -59,26 +59,34 @@ function setupLinkButton(ip) {
         if (timesPostSend > 20)
             showNewConError("The link button wasn't pressed in time, please try again");       
         timesPostSend++;
-        postRequest(ip+"/api/", postJsonObj).then(resPost => {
-            if (Object.keys(resPost[0])[0] !== "error") {
+        testIP(ip).then(function() {
+            document.getElementById("autoConnect").innerHTML = 
+            `<p class="text-center">Manual setup - Press the link button on the Hue bridge</p>
+            <img id="loadingImg" src="img/push-link.png">`;
+            postRequest(ip+"/api/", postJsonObj).then(resPost => {
+                if (Object.keys(resPost[0])[0] !== "error") {
+                    clearInterval(interval);
+                    showSuccess(ip, resPost[0].success.username);
+                }
+            }).catch(function() {
                 clearInterval(interval);
-                showSuccess(ip, resPost[0].success.username);
-                return 0;
-            }
+                showNewConError("Could not connect check the IP address doesn't work");
+            });
         }).catch(function() {
-            return 1;
+            clearInterval(interval);
+            showNewConError("Could not connect check the IP address doesn't work");
         });
     }, refreshTime);
 }
 
 function manuallyNewConnection() {
     document.getElementById("autoConnect").innerHTML = 
-    `<p class="text-center">Manual setup</p>`;
+    `<p class="text-center">Manual setup - Testing ip</p>
+    <img id="loadingImg" src="img/loading.svg">`;
     clearInterval(interval);
     document.getElementById("errAutoBox").style.visibility = "hidden";
     let ip = document.getElementById("manuallyIp").value;
-    if (setupLinkButton(ip))
-        showNewConError("Could not connect check the IP address doesn't work");
+    setupLinkButton(ip);
 }
 
 function showSuccess(ip, accessToken) {
@@ -131,10 +139,9 @@ function loginExistingCon() {
 function setDashboard() {
     let acc = getAccess();
     getDashboard(acc).then(dashboard => {
-        document.getElementById("mainSight").innerHTML = dashboard.getHtml(acc);
-        document.getElementById("refreshSwitchBtn").addEventListener("change", autoRefresh); 
+        document.getElementById("mainSite").innerHTML = dashboard.getHtml(acc);
+        document.getElementById("refreshBtn").addEventListener("click", refresh); 
         document.getElementById("logOutBtn").addEventListener("click", logOut);
-        autoRefresh();
     }).catch(err => {
         console.error(err);
     });

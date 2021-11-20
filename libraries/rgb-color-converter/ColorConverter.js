@@ -1,3 +1,6 @@
+//ColorConverter form: https://github.com/Shnoo/js-CIE-1931-rgb-color-converter
+//ColorTempToRGB from: https://gist.github.com/Kristofir/6bed39882afab4a6a4e6
+
 class ColorConverter {
 	static getGamutRanges(){
 		let gamutA = {
