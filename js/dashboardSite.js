@@ -11,19 +11,19 @@ class DashboardPage {
       <header class="pb-3 mb-4">
         <div class="top-bar">
           <a class="d-flex align-items-center text-dark text-decoration-none">
-            <span class="fs-4">Online Hue Controller</span>
+            <span class="fs-4 text-white">Online Hue Controller</span>
           </a>
           <div class="d-flex flex-row-reverse top-bar-right">
-            <a id="logOutBtn" class="nav-link">Log Out</a>
-            <a id="logOutBtn" class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#SettingsModal" >More info</a>
+            <a id="logOutBtn" class="nav-link link-white">Log Out</a>
+            <a id="logOutBtn" class="nav-link link-white" type="button" data-bs-toggle="modal" data-bs-target="#SettingsModal" >More info</a>
           </div>
         </div>
 
         <!-- SettingsModal -->
         <div class="modal fade" id="SettingsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header">
+            <div class="modal-content rounded-15">
+              <div class="modal-header modal-header-15">
                 <h5 class="modal-title text-white" id="exampleModalLabel">More info</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
@@ -37,7 +37,7 @@ class DashboardPage {
                 </table>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary rounded-10" data-bs-dismiss="modal">Close</button>
               </div>
             </div>
           </div>
@@ -46,7 +46,7 @@ class DashboardPage {
       </header>
       <div class="row align-items-md-stretch">`;
     let rommsHtml = `<div class="col-md-4">
-                     <div class="h-100 p-4 text-white bg-dark rounded-3">
+                     <div class="h-100 p-4 text-white bg-dark shadow-cos rounded-15">
                       <div class="d-flex flex-row justify-content-between">
                         <h1 class="display-8">Rooms</h1>
                         <button id="refreshBtn" class="btn btn-secondary btn-refresh">Refresh</button>
@@ -62,10 +62,10 @@ class DashboardPage {
     let lightsHtml = `</div></div></div> 
                       <div class="col-md-8">
                       <div class="row row-cols-1 margin-0">
-                      <div class="p-3 text-white bg-dark rounded-3 d-flex align-content-start flex-wrap" id="lightSelecters">
+                      <div class="p-3 text-white bg-dark shadow-cos rounded-15 d-flex align-content-start flex-wrap" id="lightSelecters">
                       <h1 class="display-8 my-2 w-100">Lights</h1>`;
 
-    let sceenHtml = `</div><div class="p-4 mt-2 text-white bg-dark rounded-3" id="sceneSelecters">
+    let sceenHtml = `</div><div class="p-4 mt-2 text-white bg-dark shadow-cos rounded-15" id="sceneSelecters">
                      <h1 class="display-8 my-2 w-100">Scenes</h1>`
 
     let bottomHtml = "</div></div></div></div>";
@@ -167,7 +167,7 @@ function makeLightSelecter(light) {
     }
     pickersCollapse = `<button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup${light.id}" aria-expanded="true" aria-controls="pickerPopup${light.id}"><img src="svg/chevron-down.svg"></button>
       <div class="collapse" id="pickerPopup${light.id}" class="accordion-collapse collapse show" data-bs-parent="#lightSelecters">
-        <div class="card card-body pickerPopupCard">
+        <div class="card card-body rounded-10 pickerPopupCard">
             ${sliders}
         </div>
       </div>`;

@@ -5,7 +5,12 @@
 }
 
 body {
-    background-image: linear-gradient(0, #7c9ffd, #83b9ff, #6b97ff);
+    /*background-image: linear-gradient(0, #79c2e4, #f2d5b3);*/
+    /*background-image: linear-gradient(0, #222222, #383838);*/
+    /*background-image: linear-gradient(0, #7c9ffd, #83b9ff, #6b97ff);*/
+    /*background-image: linear-gradient(0, #a489e6, #f8cab7);*/
+    /*background-image: linear-gradient(0,  #827fec, #e9d5b8,#dceeb7, #e4eed1);*/
+    background-image: linear-gradient(0,  #5652b9, #717ce4,#7669e7);
     background-attachment: fixed;
     height: 100vh;
     overflow-y:scroll;
@@ -36,7 +41,7 @@ body {
 .roomSelecter {
     padding: 12px 1px 3px 1px;
     background-color: #000;
-    border-radius: 5px;
+    border-radius: 10px;
     width: 100%;
 }
 
@@ -67,7 +72,7 @@ div {
 }
 
 .lightSelecter {
-    border-radius: 4px;
+    border-radius: 10px;
 	font-size: 14pt;
     color: #575757;
     width: 32.1%;
@@ -96,6 +101,11 @@ div {
 .text-hover-white {
     color: #b6b6b6;
     transition: 0.2s ease-in-out;
+}
+
+.btn-refresh {
+    border-radius: 10px;
+    height: 43px;
 }
 
 .nowrapTxt {
@@ -150,7 +160,7 @@ div {
 }
 
 .sceneSelecter {
-    border-radius: 4px;
+    border-radius: 10px;
 	font-size: 14pt;
     color: #dddddd;
     width: 23.8%;
@@ -173,4 +183,28 @@ div {
     .sceneSelecter {
         width: 48.4%;
     }
+}
+
+.rounded-15 {
+    border-radius: 15px; 
+}
+
+.rounded-10 {
+    border-radius: 10px;
+}
+
+.shadow-cos {
+    box-shadow: 5px 10px 10px #0000001a;
+}
+
+.link-white {
+    color: #fff;
+}
+.link-white:hover {
+    color: #9693d3;
+}
+
+.modal-header-15 {
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
 }
