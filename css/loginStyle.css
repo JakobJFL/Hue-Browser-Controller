@@ -11,8 +11,6 @@
     background-color: #fff;
     border-radius: 15px;
     box-shadow: 5px 10px 10px #0000001a;
-    min-width: 280px;
-    min-height: 500px;
 }
 
 .btn-round {
@@ -37,11 +35,6 @@
 .form-input {
     border-radius: 25px;
     border-width: 2px;
-}
-
-.center-form {
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .errText {
@@ -81,4 +74,13 @@
         margin: 0px;
         height: 93vh;
     }
+}
+
+.input-manually-group {
+    width: 250px;
+}
+
+.center-form {
+    margin-left: auto;
+    margin-right: auto;
 }

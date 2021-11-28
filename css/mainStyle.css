@@ -38,6 +38,8 @@ body {
     height: 100vh;
     overflow-x: hidden;
     overflow-y: overlay;
+    min-width: 310px;
+    min-height: 500px;
 }
 
 .btn:focus {

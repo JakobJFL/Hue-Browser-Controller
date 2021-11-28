@@ -20,7 +20,7 @@ class DashboardPage {
         </div>
 
         <!-- SettingsModal -->
-        <div class="modal fade" id="SettingsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="SettingsModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content rounded-15">
               <div class="modal-header modal-header-15">
