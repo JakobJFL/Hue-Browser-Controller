@@ -81,7 +81,24 @@
       </div>
     </div>
   </main>
-
+  <div class="modal fade" id="InsecureContentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content rounded-15">
+        <div class="modal-body">
+          <h3 class="text-center text-danger pt-4">Cannot connect to Philips Hue because your browser is blocking the connection</h3>
+          <h2 class="pt-4">Please allow insecure content</h2>
+          <h3 class="pt-4">Step 1</h3>
+          <p>Click on the lock next to the URL bar:</p>
+          <img src="img/InsecureContent1.jpg" alt="">
+          <h3 class="pt-4">Step 2</h3>
+          <p>Scroll down to find "insecure content" and press allow on the dropdown:</p>
+          <img src="img/InsecureContent2.jpg" alt="">
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary rounded-10" onclick="window.location.reload();">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="bootstrap-5.0.0-dist/js/bootstrap.js"></script>
   <script src="js/api.js"></script>
   <script src="js/actions.js"></script>

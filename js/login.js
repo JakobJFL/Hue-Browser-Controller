@@ -6,9 +6,10 @@ let interval;
 const refreshTime = 1500;
 const postJsonObj = {devicetype: "Hue-Browser-Controller"};
 checkLocalStorage();
+
 function checkLocalStorage() { 
     if (localStorage.getItem('hueAcc')) 
-        setDashboard();
+       setDashboard(); 
     else 
         document.getElementById("overlay").style.display = "none";
 }
@@ -142,14 +143,17 @@ function loginExistingCon() {
     }).catch(err => {
         let errMsgBox = document.getElementById("errFromBox");
         errMsgBox.style.visibility = "visible";
+        console.log(err);
         if (err == "TypeError: Failed to fetch")  
             errMsgBox.innerText = "No connection - network error, check network connection or IP Address";
         else if (err == "Error: AbortTimeout")  
             errMsgBox.innerText = "Timeout - Check IP Address or network connection";
         else if (err == "Error: unauthorized user")  
             errMsgBox.innerText = "Wrong access token";
-        else 
-            errMsgBox.innerText = err.message;
+        else {
+            errMsgBox.innerText ="An unknown error occurred";
+            console.error(err);
+        }
     });
 }
 
@@ -177,3 +181,7 @@ async function getDashboard(acc) {
     }
 }
 
+function showInsecureContentModal() {
+    let myModal = new bootstrap.Modal(document.getElementById('InsecureContentModal'));
+    myModal.show();
+}
