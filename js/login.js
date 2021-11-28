@@ -2,10 +2,16 @@ document.addEventListener("shown.bs.collapse", makeNewConnection);
 document.getElementById("loginFrom").addEventListener("submit", loginExistingCon);
 document.getElementById("manuallyIpBtn").addEventListener("click", manuallyIpNewConnection);
 
-checkLocalStorage();
 let interval;
 const refreshTime = 1500;
 const postJsonObj = {devicetype: "Hue-Browser-Controller"};
+checkLocalStorage();
+function checkLocalStorage() { 
+    if (localStorage.getItem('hueAcc')) 
+        setDashboard();
+    else 
+        document.getElementById("overlay").style.display = "none";
+}
 
 //<NewConnection>
 async function makeNewConnection(event) {
@@ -169,8 +175,3 @@ async function getDashboard(acc) {
     }
 }
 
-function checkLocalStorage() { // find a better solution
-    if (localStorage.getItem('hueAcc')) {
-        setDashboard();
-    }
-}
