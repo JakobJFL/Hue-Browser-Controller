@@ -14,7 +14,7 @@ class DashboardPage {
             <span class="fs-4 text-white">Online Hue Controller</span>
           </a>
           <div class="d-flex flex-row-reverse top-bar-right">
-            <a id="logOutBtn" class="nav-link link-white">Log Out</a>
+            <a id="logOutBtn" class="nav-link link-white">Logout</a>
             <a id="logOutBtn" class="nav-link link-white" type="button" data-bs-toggle="modal" data-bs-target="#SettingsModal" >More info</a>
           </div>
         </div>
@@ -28,7 +28,7 @@ class DashboardPage {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <h3 class="fs-5 text-muted">Hue info</h3>
+                <h3 class="fs-5 text-muted">Saved hue login details</h3>
                 <table class="table">
                   <tbody>
                     <tr><th class="text-muted" scope="row">IP Addres:</th><td>${acc.ip}</td></tr>

@@ -91,7 +91,7 @@ function showSuccess(ip, accessToken) {
     clearInterval(interval);
     document.getElementById("autoConnect").innerHTML = 
         `<div class="alert alert-success text-center" role="alert">
-        <p><strong>Success!</strong> A connection to the bridge is made.</p>
+        <p><strong>Success!</strong> A connection to the bridge has been made. The login details will automatically be saved when you press login.</p>
         <button id="loginNewConnection" class="btn btn-primary form-input" type="button">Login</button>
         </div>
         <p class="text-center">IP address: <em>${ip}</em></p> 
