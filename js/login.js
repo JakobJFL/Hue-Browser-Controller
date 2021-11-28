@@ -143,10 +143,8 @@ function loginExistingCon() {
     }).catch(err => {
         let errMsgBox = document.getElementById("errFromBox");
         errMsgBox.style.visibility = "visible";
-        console.log(err);
-        console.log(err.name, err.message, err.cause);
         if (err == "TypeError: Failed to fetch")  
-            errMsgBox.innerText = "No connection - network error, check network connection or IP Address";
+            errMsgBox.innerText = "No connection - Check if \"insecure content\" is allowed or check network connection and IP Address";
         else if (err == "Error: AbortTimeout")  
             errMsgBox.innerText = "Timeout - Check IP Address or network connection";
         else if (err == "Error: unauthorized user")  
@@ -180,9 +178,4 @@ async function getDashboard(acc) {
     } catch(err) {
         return err;
     }
-}
-
-function showInsecureContentModal() {
-    let myModal = new bootstrap.Modal(document.getElementById('InsecureContentModal'));
-    myModal.show();
 }

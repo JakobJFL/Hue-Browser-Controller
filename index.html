@@ -14,6 +14,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
   <link rel="manifest" href="favicon/site.webmanifest">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <title>Online Hue Controller</title>
 </head>
 <body>
@@ -27,9 +28,11 @@
           <div class="col-md-6">
             <img src="img/Light Hue Backgrund.jpg" id="loginImg">
           </div>
-          <div class="col-md-6 right-side p-4">
-            <h1 class="text-center display-5">Online Hue Controller</h1>
-            <h2 class="text-center fs-4">Choose connection option:</h2>
+          <div class="col-md-6 right-side text-center p-4">
+            <h1 class="display-5">Online Hue Controller</h1>
+            <h3 class="fs-6">The website <strong class="text-danger">requires</strong> that "insecure content" is allowed</h3>
+            <button type="button" class="btn btn-secondary btn-round" data-bs-toggle="modal" data-bs-target="#InsecureContentModal">Open guide</button>
+            <h2 class="fs-4">Choose connection option:</h2>
             <div class="text-center">
               <button type="button" class="btn btn-primary btn-round" data-bs-toggle="collapse" data-bs-target="#newConnection">Create a new connection</button>
               <button type="button" class="btn btn-outline-primary btn-round" data-bs-toggle="collapse" data-bs-target="#existingConnection">Use existing connection</button>
@@ -85,15 +88,15 @@
     <div class="modal-dialog modal-xl">
       <div class="modal-content rounded-15">
         <div class="modal-body">
-          <h3 class="text-center text-danger pt-4">Cannot connect to Philips Hue because your browser is blocking the connection</h3>
-          <h2 class="pt-4">Please allow insecure content</h2>
+          <h2 class="pt-4">Allow insecure content</h2>
           <h3 class="pt-4">Step 1</h3>
-          <p>Click on the lock next to the URL bar:</p>
+          <p>Click on the lock or "Not secure" next to the URL bar:</p>
           <img src="img/InsecureContent1.jpg" alt="">
           <h3 class="pt-4">Step 2</h3>
           <p>Scroll down to find "insecure content" and press allow on the dropdown:</p>
           <img src="img/InsecureContent2.jpg" alt="">
         <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary rounded-10" data-bs-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary rounded-10" onclick="window.location.reload();">Done</button>
         </div>
       </div>
