@@ -159,7 +159,9 @@ function setDashboard() {
         document.getElementById("mainSite").innerHTML = dashboard.getHtml(acc);
         document.getElementById("refreshBtn").addEventListener("click", refresh); 
         document.getElementById("logOutBtn").addEventListener("click", logOut);
+        document.getElementById("overlay").style.display = "none";
     }).catch(err => {
+        document.getElementById("overlay").style.display = "none";
         console.error(err);
     });
 }
