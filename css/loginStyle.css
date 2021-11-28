@@ -11,6 +11,8 @@
     background-color: #fff;
     border-radius: 15px;
     box-shadow: 5px 10px 10px #0000001a;
+    min-width: 280px;
+    min-height: 550px;
 }
 
 .btn-round {
