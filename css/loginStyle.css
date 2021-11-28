@@ -6,11 +6,11 @@
 }
 
 .login-container {
+    position: relative;
     margin: 5vh 10% 8vh 10%;
     background-color: #fff;
     border-radius: 15px;
     box-shadow: 5px 10px 10px #0000001a;
-    position: relative;
 }
 
 .btn-round {
@@ -49,10 +49,10 @@
 }
 
 .bottom-text-left {
-    bottom: 0px;
-    left: 75%;
-    transform: translate(-50%);
     position: absolute;
+    bottom: 0px;
+    left: 66.667%;
+    transform: translate(-16.667%);
 }
 
 @media only screen and (max-width: 992px) {
@@ -60,13 +60,23 @@
         display: none;
     }
     .login-container {
-        margin: 0px;
+        margin: 0;
         height: 80vh;
     }
-    .bottom-text {
-        left: 50%;
+    .bottom-text-left {
+        text-align: center;
+        width: 100%;
+        left: 0%;
+        transform: translate(0%);
     }
     .right-side {
         padding-right: 12px;
+    }
+}
+
+@media only screen and (max-width: 370px) {
+    .login-container {
+        margin: 0px;
+        height: 93vh;
     }
 }

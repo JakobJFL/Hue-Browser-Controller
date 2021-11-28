@@ -4,6 +4,29 @@
     100%  {height: 1; opacity: 1;}
 }
 
+/* width */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #2c2a5d; 
+    background-color: #3c3981;
+    border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #898999; 
+    border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #727080; 
+}
+
 body {
     /*background-image: linear-gradient(0, #79c2e4, #f2d5b3);*/
     /*background-image: linear-gradient(0, #222222, #383838);*/
@@ -13,8 +36,8 @@ body {
     background-image: linear-gradient(0,  #5652b9, #717ce4,#7669e7);
     background-attachment: fixed;
     height: 100vh;
-    overflow-y:scroll;
-    overflow-x:hidden;
+    overflow-x: hidden;
+    overflow-y: overlay;
 }
 
 .btn:focus {

@@ -69,8 +69,8 @@ class DashboardPage {
                      <h1 class="display-8 my-2 w-100">Scenes</h1>`
 
     let bottomHtml = "</div></div></div></div>";
-    let footer = ` <footer class="text-muted bottom-text">
-    <p class="text-center">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke</p>
+    let footer = ` <footer class="text-white bottom-text">
+    <p class="text-center">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke <a href="https://github.com/JakobJFL" class="link-white" target="_blank">Github</a></p>
   </footer>`;
     if (selectedRoomID === -1) 
       selectedRoomID = allRooms[0].id;
