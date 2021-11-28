@@ -144,6 +144,7 @@ function loginExistingCon() {
         let errMsgBox = document.getElementById("errFromBox");
         errMsgBox.style.visibility = "visible";
         console.log(err);
+        console.log(err.name, err.message, err.cause);
         if (err == "TypeError: Failed to fetch")  
             errMsgBox.innerText = "No connection - network error, check network connection or IP Address";
         else if (err == "Error: AbortTimeout")  
