@@ -14,7 +14,6 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
   <link rel="manifest" href="favicon/site.webmanifest">
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <title>Online Hue Controller</title>
 </head>
 <body>
@@ -31,7 +30,7 @@
           <div class="col-md-6 right-side text-center p-4">
             <h1 class="display-5">Online Hue Controller</h1>
             <h3 class="fs-6">The website <strong class="text-danger">requires</strong> that "insecure content" is allowed</h3>
-            <button type="button" class="btn btn-secondary btn-round" data-bs-toggle="modal" data-bs-target="#InsecureContentModal">Open guide</button>
+            <button type="button" class="btn btn-outline-secondary btn-round mt-0 mb-3" data-bs-toggle="modal" data-bs-target="#InsecureContentModal">Open guide</button>
             <h2 class="fs-4">Choose connection option:</h2>
             <div class="text-center">
               <button type="button" class="btn btn-primary btn-round" data-bs-toggle="collapse" data-bs-target="#newConnection">Create a new connection</button>
@@ -85,16 +84,32 @@
     </div>
   </main>
   <div class="modal fade" id="InsecureContentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content rounded-15">
         <div class="modal-body">
           <h2 class="pt-4">Allow insecure content</h2>
           <h3 class="pt-4">Step 1</h3>
-          <p>Click on the lock or "Not secure" next to the URL bar:</p>
-          <img src="img/InsecureContent1.jpg" alt="">
+          <p>Click on the lock or "Not secure" next to the URL bar. Then click on "Site settings":</p>
+          <img src="img/InsecureContent1.jpg" alt="" width="100%">
           <h3 class="pt-4">Step 2</h3>
           <p>Scroll down to find "insecure content" and press allow on the dropdown:</p>
-          <img src="img/InsecureContent2.jpg" alt="">
+          <img src="img/InsecureContent2.jpg" alt="" width="100%">
+          <h3 class="pt-4">Step 3</h3>
+          <p>Come back to this website and press done.</p>
+          <h4 class="pt-4">Why do i have to do this?</h4>
+          <p>This website uses a secure(HTTPS) connection and it's talking to a local Philips Hue Bridge over a non-secure connection(HTTP). 
+            This is the only way to communicate with a Philips Hue Bridge. 
+            It's by Philips design and there are no problems with this because everything runs locally and cannot be accessed outside this network.
+            Google Chrome and other browsers are unfortunately not very happy fetching something from a non-secure connection to this website's secure connection.
+            Therefore you have to tell the browser that it's okay, in this case, to fetch insecure content. 
+            The "Not secure" text at the URL bar is also because of this. 
+            This is all running locally, <strong>so none of this affects the security of any device on your network</strong>, if you were ever in doubt.
+            Everything runs on the client side and <strong> nothing is being tracked or stored outside your own network.</strong></p>
+            <!--
+              So, you are looking at a code! Let me tell you one more thing because I didn't know whether to include this or not:
+              Mixed content can be a big issue but in this case, there's no problem. 
+              As long as you trust everyone on your network which you probably do since you're using Philips Hue.
+            -->
         <div class="modal-footer">
           <button type="button" class="btn btn-primary rounded-10" onclick="window.location.reload();">Done</button>
         </div>

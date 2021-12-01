@@ -12,7 +12,7 @@ function getAccess() {
     if (localAcc) {
         acc = JSON.parse(localAcc);
     } else {
-        console.error("login error")
+        console.error("Access credentials not saved")
     }
     return acc;
 }
