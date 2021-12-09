@@ -56,6 +56,8 @@ function getHueLights(acc) {
             for (let i = fistIndex; i <= lastIndex; i++) {   
                 if (!data[String(i)])
                     continue;
+                if (data[String(i)].type != "On/Off plug-in unit")
+                    continue;
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.on,
