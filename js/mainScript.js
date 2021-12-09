@@ -20,11 +20,11 @@ function getAccess() {
 function getHueRooms(acc) {
     return new Promise((resolve, reject) => {
         getRequest(acc.ip+'/api/'+acc.token+'/groups').then(data => {
-            console.log(data);
             let rooms = [];
             let fistIndex = Object.keys(data)[0];
             let lastIndex = Object.keys(data).length;
-            for (const [i,v] of data.entries()) {
+            console.log(fistIndex, lastIndex)
+            for (let i = fistIndex; i <= lastIndex; i++) {
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.any_on,
@@ -34,9 +34,9 @@ function getHueRooms(acc) {
                     lightsInRoom: data[String(i)].lights,
                     id: i
                 }
+                console.log(roomObj)
                 rooms.push(roomObj);
             }
-        
             allRooms = rooms;
             resolve(rooms);
         }).catch(err => {console.error(err); reject(err)});
