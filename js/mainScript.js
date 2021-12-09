@@ -23,7 +23,8 @@ function getHueRooms(acc) {
             let rooms = [];
             let fistIndex = Object.keys(data)[0];
             let i = fistIndex;
-            while (data[i]) {
+            console.log(data);
+            while (data[String(i)]) {
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.any_on,
@@ -61,7 +62,7 @@ function getHueLights(acc) {
                 i++;
             }
             resolve(lights);
-        }).catch(err => reject(err));
+        }).catch(err => {console.error(err); reject(err)});
     });
 }
 
@@ -80,7 +81,7 @@ function getHueScenes(acc) {
                 }
             }
             resolve(scenes);
-        }).catch(err => reject(err));
+        }).catch(err => {console.error(err); reject(err)});
     });
 }
 function refresh() {
