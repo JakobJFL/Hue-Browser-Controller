@@ -53,10 +53,11 @@ function getHueLights(acc) {
             let fistIndex = Object.keys(data)[0];
             let lastIndex = Object.keys(data).length;
             console.log(data);
+            console.log("HELLOOOO")
             for (let i = fistIndex; i <= lastIndex; i++) {   
                 if (!data[String(i)])
                     continue;
-                if (data[String(i)].type != "On/Off plug-in unit")
+                if (data[String(i)].type == "On/Off plug-in unit")
                     continue;
                 let roomObj = {
                     name: data[String(i)].name,
