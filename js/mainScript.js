@@ -80,7 +80,7 @@ function getHueScenes(acc) {
         getRequest(acc.ip+'/api/'+acc.token+'/scenes').then(data => {
             let scenes = [];
             for (const [key, value] of Object.entries(data)) {
-                if (value.type === "GroupScene") {
+                if (value.type === "GroupScene" && value.locked === false) {
                     let sceneObj = {
                         key: key,
                         name: value.name,
