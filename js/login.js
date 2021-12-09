@@ -5,7 +5,7 @@ document.getElementById("manuallyIpBtn").addEventListener("click", manuallyIpNew
 let interval;
 const refreshTime = 1500;
 const postJsonObj = {devicetype: "Hue-Browser-Controller"};
-console.log("Oh so you're looking at the console. Feel free to look around but it's probably easier to see the code on GitHub.");
+console.log("Oh, so you're looking at the console. Feel free to look around but it's probably easier to see the code on GitHub.");
 checkLocalStorage();
 
 function checkLocalStorage() { 
@@ -166,8 +166,8 @@ function setDashboard() {
     }).catch(err => {
         document.getElementById("overlay").style.display = "none";
         alert("A problem occurred while connecting to the Philips Hue Bridge. Please try again.");
-        logOut();
         console.error(err);
+        //logOut();
     });
 }
 
