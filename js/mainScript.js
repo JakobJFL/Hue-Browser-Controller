@@ -22,21 +22,19 @@ function getHueRooms(acc) {
         getRequest(acc.ip+'/api/'+acc.token+'/groups').then(data => {
             let rooms = [];
             let fistIndex = Object.keys(data)[0];
-            let lastIndex = Object.keys(data).length;
-            console.log(fistIndex, lastIndex)
-            console.log(data)
-            for (let i = fistIndex; i <= lastIndex; i++) {
+            let i = fistIndex;
+            while (data[i]) {
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.any_on,
-                    bri: 255,
-                    ct: 255,
-                    xy: 255,
+                    bri: data[String(i)].action.bri,
+                    ct: data[String(i)].action.ct,
+                    xy: data[String(i)].action.xy,
                     lightsInRoom: data[String(i)].lights,
                     id: i
                 }
-                console.log(roomObj)
                 rooms.push(roomObj);
+                i++;
             }
             allRooms = rooms;
             resolve(rooms);
