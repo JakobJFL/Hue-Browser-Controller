@@ -175,10 +175,8 @@ function setDashboard() {
 async function getDashboard(acc) {
     try {
         let rooms = await getHueRooms(acc);
-        console.log(rooms)
         let lights = await getHueLights(acc);
         let scenes = await getHueScenes(acc);
-        console.log(rooms, lights, scenes)
         return new DashboardPage(rooms, lights, scenes);
     } catch(err) {
         return err;
