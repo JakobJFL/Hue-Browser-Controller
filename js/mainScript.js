@@ -23,8 +23,9 @@ function getHueRooms(acc) {
             let rooms = [];
             let fistIndex = Object.keys(data)[0];
             let lastIndex = Object.keys(data).length;
+            console.log(data)
             for (let i = fistIndex; i <= lastIndex; i++) {
-                if (!data[String(i)])
+                if (!data[String(i)] && data[String(i)].type != "Room" && data[String(i)].type != "Zone")
                     continue;
                 let roomObj = {
                     name: data[String(i)].name,
@@ -49,6 +50,7 @@ function getHueLights(acc) {
             let lights = [];
             let fistIndex = Object.keys(data)[0];
             let lastIndex = Object.keys(data).length;
+            console.log(data);
             for (let i = fistIndex; i <= lastIndex; i++) {   
                 if (!data[String(i)])
                     continue;
