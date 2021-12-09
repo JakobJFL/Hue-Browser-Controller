@@ -22,9 +22,10 @@ function getHueRooms(acc) {
         getRequest(acc.ip+'/api/'+acc.token+'/groups').then(data => {
             let rooms = [];
             let fistIndex = Object.keys(data)[0];
-            let i = fistIndex;
-            console.log(data);
-            while (data[String(i)]) {
+            let lastIndex = Object.keys(data).length;
+            for (let i = fistIndex; i <= lastIndex; i++) {
+                if (!data[String(i)])
+                    break;
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.any_on,
@@ -35,7 +36,6 @@ function getHueRooms(acc) {
                     id: i
                 }
                 rooms.push(roomObj);
-                i++;
             }
             allRooms = rooms;
             resolve(rooms);
@@ -47,9 +47,11 @@ function getHueLights(acc) {
     return  new Promise((resolve, reject) => {
         getRequest(acc.ip+'/api/'+acc.token+'/lights').then(data => {
             let lights = [];
-            let i = 1;
-            console.log(data)
-            while (data[String(i)]) {
+            let fistIndex = Object.keys(data)[0];
+            let lastIndex = Object.keys(data).length;
+            for (let i = fistIndex; i <= lastIndex; i++) {   
+                if (!data[String(i)])
+                    break;
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.on,
@@ -60,10 +62,9 @@ function getHueLights(acc) {
                     id: i
                 }
                 lights.push(roomObj);
-                i++;
             }
             resolve(lights);
-        }).catch(err => {console.error(err); reject(err)});
+        }).catch(err => reject(err));
     });
 }
 
@@ -82,7 +83,7 @@ function getHueScenes(acc) {
                 }
             }
             resolve(scenes);
-        }).catch(err => {console.error(err); reject(err)});
+        }).catch(err => reject(err));
     });
 }
 function refresh() {
