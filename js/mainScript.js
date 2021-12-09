@@ -25,7 +25,7 @@ function getHueRooms(acc) {
             let lastIndex = Object.keys(data).length;
             for (let i = fistIndex; i <= lastIndex; i++) {
                 if (!data[String(i)])
-                    break;
+                    continue;
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.any_on,
@@ -51,7 +51,7 @@ function getHueLights(acc) {
             let lastIndex = Object.keys(data).length;
             for (let i = fistIndex; i <= lastIndex; i++) {   
                 if (!data[String(i)])
-                    break;
+                    continue;
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.on,
