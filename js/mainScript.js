@@ -28,9 +28,9 @@ function getHueRooms(acc) {
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.any_on,
-                    bri: data[String(i)].action.bri,
-                    ct: data[String(i)].action.ct,
-                    xy: data[String(i)].action.xy,
+                    bri: 255,
+                    ct: 255,
+                    xy: 255,
                     lightsInRoom: data[String(i)].lights,
                     id: i
                 }
