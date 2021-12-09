@@ -48,7 +48,8 @@ function getHueLights(acc) {
         getRequest(acc.ip+'/api/'+acc.token+'/lights').then(data => {
             let lights = [];
             let i = 1;
-            while (data[i]) {
+            console.log(data)
+            while (data[String(i)]) {
                 let roomObj = {
                     name: data[String(i)].name,
                     on: data[String(i)].state.on,
