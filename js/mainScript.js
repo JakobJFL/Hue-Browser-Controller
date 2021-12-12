@@ -25,9 +25,7 @@ function getHueRooms(acc) {
             let lastIndex = Object.keys(data).length;
             console.log(data)
             for (let i = fistIndex; i <= lastIndex; i++) {
-                if (!data[String(i)])
-                    continue;
-                if (data[String(i)].type != "Room" && data[String(i)].type != "Zone")
+                if (!data[String(i)] || (data[String(i)].type != "Room" && data[String(i)].type != "Zone"))
                     continue;
                 let roomObj = {
                     name: data[String(i)].name,
