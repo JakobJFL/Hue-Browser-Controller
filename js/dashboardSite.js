@@ -7,7 +7,7 @@ class DashboardPage {
     this.scenes = scenes;
   }
   getHtml(acc) { 
-    let header = `<div class="container py-4">
+    let header = `<div class="container pt-4">
       <header class="pb-3 mb-4">
         <div class="top-bar">
           <a class="d-flex align-items-center text-dark text-decoration-none">
@@ -46,7 +46,7 @@ class DashboardPage {
       </header>
       <div class="row align-items-md-stretch">`;
     let rommsHtml = `<div class="col-md-4">
-                     <div class="h-100 p-4 text-white bg-dark shadow-cos rounded-15">
+                     <div class="container-full p-4 text-white bg-dark shadow-cos rounded-15">
                       <div class="d-flex flex-row justify-content-between">
                         <h1 class="display-8">Rooms</h1>
                         <button id="refreshBtn" class="btn btn-secondary btn-refresh">Refresh</button>
@@ -61,11 +61,11 @@ class DashboardPage {
                         */
     let lightsHtml = `</div></div></div> 
                       <div class="col-md-8">
-                      <div class="row row-cols-1 margin-0">
-                      <div class="p-3 text-white bg-dark shadow-cos rounded-15 d-flex align-content-start flex-wrap" id="lightSelecters">
+                      <div class="row row-cols-1 m-0">
+                      <div class="p-3 container-half text-white bg-dark shadow-cos rounded-15 d-flex align-content-start flex-wrap" id="lightSelecters">
                       <h1 class="display-8 my-2 w-100">Lights</h1>`;
 
-    let sceenHtml = `</div><div class="p-4 mt-2 text-white bg-dark shadow-cos rounded-15" id="sceneSelecters">
+    let sceenHtml = `</div><div class="p-4 container-half mt-2 text-white bg-dark shadow-cos rounded-15" id="sceneSelecters">
                      <h1 class="display-8 my-2 w-100">Scenes</h1>`
 
     let bottomHtml = "</div></div></div></div>";
@@ -73,7 +73,7 @@ class DashboardPage {
     <p class="text-center">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke <a href="https://github.com/JakobJFL" class="link-white" target="_blank">Github</a></p>
   </footer>`;
     if (selectedRoomID === -1) 
-      selectedRoomID = allRooms[0].id;
+      selectedRoomID = allRooms[0].key;
 
     for (const room of this.rooms) {
       let lightsInThisRoom = [];
@@ -82,16 +82,16 @@ class DashboardPage {
           lightsInThisRoom.push(light);
       }
       lightsInThisRoom.sort(compare);
-      allHtml += makeRoomSelecter(room.name, room.on, room.id, room.bri, lightsInThisRoom);
+      allHtml += makeRoomSelecter(room.name, room.on, room.key, room.id, room.bri, lightsInThisRoom);
     }
     allHtml += lightsHtml;
     for (const light of this.lights) {
-      if (allRooms[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
+      if (allRooms[selectedRoomID].lightsInRoom.includes(String(light.id)))
         allHtml += makeLightSelecter(light);
     }
     allHtml += sceenHtml;
     for (const scene of this.scenes) {
-      if (selectedRoomID == scene.group)
+      if (allRooms[selectedRoomID].id == scene.group)
         allHtml += makeSceneSelecter(scene);
     }
     allHtml += bottomHtml;
@@ -100,7 +100,7 @@ class DashboardPage {
   }
 }
 
-function makeRoomSelecter(name, on, id, bri, lights) {
+function makeRoomSelecter(name, on, key, id, bri, lights) {
   let checkedStr = "";
   let colorsGradient = "";
   let colorConv = new ColorConverter();
@@ -129,7 +129,7 @@ function makeRoomSelecter(name, on, id, bri, lights) {
     sliderDisabled = 'style="display:none"';
   }
   return `<div class="roomSelecter my-3" style="background: linear-gradient(to right,${colorsGradient});" class="btn roomSelecter my-2">
-          <button class="btn roomBtn" onclick="selectRoom_click(${id});">${name}</button>
+          <button class="btn roomBtn" onclick="selectRoom_click(${key});">${name}</button>
             <label class="switch swRight">
               <input type="checkbox" id="roomSwitch${id}" onclick="setRoomState_click(${id})" ${checkedStr}>
               <span class="slider"></span>
@@ -165,12 +165,22 @@ function makeLightSelecter(light) {
       color = colorConv.colorTempToRGB(1000000/(light.ct-200)); // Mired to kelvin, -200 for celebration https://en.wikipedia.org/wiki/Mired
       sliders += `<input type="range" min="153" max="500" value="${light.ct}" class="tempSlider sliderBar" id="tempSlider${light.id}" onchange="tempSlider_change(${light.id})">`;
     }
-    pickersCollapse = `<button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup${light.id}" aria-expanded="true" aria-controls="pickerPopup${light.id}"><img src="svg/chevron-down.svg"></button>
+    if (light.bri) {
+      pickersCollapse = `<button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup${light.id}" aria-expanded="true" aria-controls="pickerPopup${light.id}"><img src="svg/chevron-down.svg"></button>
       <div class="collapse" id="pickerPopup${light.id}" class="accordion-collapse collapse show" data-bs-parent="#lightSelecters">
         <div class="card card-body rounded-10 pickerPopupCard">
             ${sliders}
         </div>
       </div>`;
+    }
+    else 
+      color = "230, 230, 230";
+  }
+  if (!light.reachable) {
+    return `<div class="lightSelecter my-2" id="${light.id}" style="background-color: rgb(${color})"> 
+    <button type="button" class="btn nowrapTxt ${textColor}">${light.name}</button>
+      <p class"text-danger">Unreachable</p>
+    </div>`
   }
   return `<div class="lightSelecter my-2" id="${light.id}" style="background-color: rgb(${color})"> 
   <button type="button" class="btn nowrapTxt ${textColor}" onclick="setLightState_click(${light.id}, ${light.on})">${light.name}</button>

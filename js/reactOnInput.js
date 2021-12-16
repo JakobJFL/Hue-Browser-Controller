@@ -34,11 +34,11 @@ function selectRoom_click(roomId) {
   getHueLights(acc).then(lights => {
     getHueScenes(acc).then(scenes => {
       for (const light of lights) {
-        if (allRooms[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id)))
-        lightHtml += makeLightSelecter(light);
+        if (allRooms[selectedRoomID].lightsInRoom.includes(light.id))
+          lightHtml += makeLightSelecter(light);
       }
       for (const scene of scenes) {
-        if (selectedRoomID == scene.group)
+        if (allRooms[selectedRoomID].id == scene.group)
         scenehtml += makeSceneSelecter(scene);
       }
       document.getElementById("lightSelecters").innerHTML = lightHtml;
@@ -57,7 +57,7 @@ function setLightRange_change(id, isOn) {
 }
 
 function selectScene_click(key) {
-  new actions().changeScene(selectedRoomID, key).then(() => setDashboard()); // Refresh html
+  new actions().changeScene(allRooms[selectedRoomID].id, key).then(() => setDashboard()); // Refresh html
 }
 
   

@@ -1,6 +1,10 @@
 let allRooms = {};
 let selectedRoomID = -1;
 
+const allowedGroups = ["Room", "Zone"];
+const allowedLights = ["Extended color light", "Color temperature light", "Dimmable light", "On/Off plug-in unit"];
+const allowedScenes = ["GroupScene"];
+
 function logOut(){
     localStorage.removeItem("hueAcc");
     location.reload();
@@ -21,28 +25,26 @@ function getHueRooms(acc) {
     return new Promise((resolve, reject) => {
         getRequest(acc.ip+'/api/'+acc.token+'/groups').then(data => {
             let rooms = [];
-            let fistIndex = Object.keys(data)[0];
-            let lastIndex = Object.keys(data).length;
-            console.log(data)
-            for (let i = fistIndex; i <= lastIndex; i++) {
-                if (!data[String(i)])
-                    continue;
-                if (data[String(i)].type != "Room" && data[String(i)].type != "Zone")
-                    continue;
-                let roomObj = {
-                    name: data[String(i)].name,
-                    on: data[String(i)].state.any_on,
-                    bri: data[String(i)].action.bri,
-                    ct: data[String(i)].action.ct,
-                    xy: data[String(i)].action.xy,
-                    lightsInRoom: data[String(i)].lights,
-                    id: i
+            let roomId = 0;
+            for (const [key, value] of Object.entries(data)) {
+                if (value && allowedGroups.includes(value.type)) {
+                    let roomObj = {
+                        name: value.name,
+                        on: value.state.any_on,
+                        bri: value.action.bri,
+                        ct: value.action.ct,
+                        xy: value.action.xy,
+                        lightsInRoom: value.lights,
+                        key: roomId,
+                        id: key
+                    }
+                    rooms.push(roomObj);
+                    roomId++;
                 }
-                rooms.push(roomObj);
             }
             allRooms = rooms;
             resolve(rooms);
-        }).catch(err => {console.error(err); reject(err)});
+        }).catch(err => reject(err));
     });
 }
 
@@ -50,25 +52,20 @@ function getHueLights(acc) {
     return  new Promise((resolve, reject) => {
         getRequest(acc.ip+'/api/'+acc.token+'/lights').then(data => {
             let lights = [];
-            let fistIndex = Object.keys(data)[0];
-            let lastIndex = Object.keys(data).length;
-            console.log(data);
-            console.log("HELLOOOO")
-            for (let i = fistIndex; i <= lastIndex; i++) {   
-                if (!data[String(i)])
-                    continue;
-                if (data[String(i)].type == "On/Off plug-in unit")
-                    continue;
-                let roomObj = {
-                    name: data[String(i)].name,
-                    on: data[String(i)].state.on,
-                    bri: data[String(i)].state.bri,
-                    ct: data[String(i)].state.ct,
-                    xy: data[String(i)].state.xy,
-                    hue: data[String(i)].state.hue,
-                    id: i
+            for (const [key, value] of Object.entries(data)) {
+                if (value && allowedLights.includes(value.type)) {
+                    let lightObj = {
+                        name: value.name,
+                        on: value.state.on,
+                        bri: value.state.bri,
+                        ct: value.state.ct,
+                        xy: value.state.xy,
+                        hue: value.state.hue,
+                        reachable: value.state.reachable,
+                        id: key
+                    }
+                    lights.push(lightObj);
                 }
-                lights.push(roomObj);
             }
             resolve(lights);
         }).catch(err => reject(err));
@@ -80,7 +77,7 @@ function getHueScenes(acc) {
         getRequest(acc.ip+'/api/'+acc.token+'/scenes').then(data => {
             let scenes = [];
             for (const [key, value] of Object.entries(data)) {
-                if (value.type === "GroupScene" && value.locked === false) {
+                if (value && allowedScenes.includes(value.type)) {
                     let sceneObj = {
                         key: key,
                         name: value.name,
