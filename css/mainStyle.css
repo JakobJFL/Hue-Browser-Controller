@@ -50,7 +50,14 @@ body {
 .container-half {
     max-height: 37vh;
     overflow-y: overlay;
+
 }
+
+
+.pickerPopupCard {
+    background-color: #000;
+}
+
 
 .btn:focus {
     box-shadow: none;
@@ -189,10 +196,6 @@ div {
     left: 50%;
     transform: translate(-50%);
     position: relative;
-}
-
-.pickerPopupCard {
-    background-color: #000;
 }
 
 .sceneSelecter {

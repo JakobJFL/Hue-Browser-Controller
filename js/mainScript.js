@@ -1,6 +1,8 @@
 let allRooms = {};
 let selectedRoomID = -1;
 
+let testingEnvironment = false;
+
 const allowedGroups = ["Room", "Zone"];
 const allowedLights = ["Extended color light", "Color temperature light", "Dimmable light", "On/Off plug-in unit"];
 const allowedScenes = ["GroupScene"];
@@ -24,6 +26,8 @@ function getAccess() {
 function getHueRooms(acc) {
     return new Promise((resolve, reject) => {
         getRequest(acc.ip+'/api/'+acc.token+'/groups').then(data => {
+            if (testingEnvironment) 
+                data = JSON.parse(testGroups);
             let rooms = [];
             let roomId = 0;
             for (const [key, value] of Object.entries(data)) {
@@ -51,6 +55,10 @@ function getHueRooms(acc) {
 function getHueLights(acc) {
     return  new Promise((resolve, reject) => {
         getRequest(acc.ip+'/api/'+acc.token+'/lights').then(data => {
+            console.log(data);
+            if (testingEnvironment) 
+                data = JSON.parse(testLights);
+            console.log(data);
             let lights = [];
             for (const [key, value] of Object.entries(data)) {
                 if (value && allowedLights.includes(value.type)) {
@@ -75,6 +83,8 @@ function getHueLights(acc) {
 function getHueScenes(acc) {
     return  new Promise((resolve, reject) => {
         getRequest(acc.ip+'/api/'+acc.token+'/scenes').then(data => {
+            if (testingEnvironment) 
+                data = JSON.parse(testScenes);
             let scenes = [];
             for (const [key, value] of Object.entries(data)) {
                 if (value && allowedScenes.includes(value.type)) {
@@ -93,7 +103,6 @@ function getHueScenes(acc) {
 function refresh() {
     setDashboard();
 }
-
 
 /*
 function autoRefresh() {

@@ -46,7 +46,7 @@ class DashboardPage {
       </header>
       <div class="row align-items-md-stretch">`;
     let rommsHtml = `<div class="col-md-4">
-                     <div class="container-full p-4 text-white bg-dark shadow-cos rounded-15">
+                     <div class="container-full p-4 mt-2 text-white bg-dark shadow-cos rounded-15">
                       <div class="d-flex flex-row justify-content-between">
                         <h1 class="display-8">Rooms</h1>
                         <button id="refreshBtn" class="btn btn-secondary btn-refresh">Refresh</button>
@@ -61,8 +61,8 @@ class DashboardPage {
                         */
     let lightsHtml = `</div></div></div> 
                       <div class="col-md-8">
-                      <div class="row row-cols-1 m-0">
-                      <div class="p-3 container-half text-white bg-dark shadow-cos rounded-15 d-flex align-content-start flex-wrap" id="lightSelecters">
+                      <div class="row test row-cols-1 m-0">
+                      <div class="p-3 mt-2 container-half text-white bg-dark shadow-cos rounded-15 d-flex align-content-start flex-wrap" id="lightSelecters">
                       <h1 class="display-8 my-2 w-100">Lights</h1>`;
 
     let sceenHtml = `</div><div class="p-4 container-half mt-2 text-white bg-dark shadow-cos rounded-15" id="sceneSelecters">
@@ -102,7 +102,7 @@ class DashboardPage {
 
 function makeRoomSelecter(name, on, key, id, bri, lights) {
   let checkedStr = "";
-  let colorsGradient = "";
+  let colorsGradient = "linear-gradient(to right,";
   let colorConv = new ColorConverter();
   let sliderDisabled = "";
   if (on) {
@@ -124,11 +124,18 @@ function makeRoomSelecter(name, on, key, id, bri, lights) {
           colorsGradient += ",";
       } 
     }
+    if (lights.length === 1)
+      if (lights[0].xy) 
+        colorsGradient =  "rgb("+colorConv.xyBriToRgb(lights[0].xy[0], lights[0].xy[1], 255);
+      else if (lights[0].ct)
+        colorsGradient = " rgb("+colorConv.colorTempToRGB(1000000/(lights[0].ct-200));
+      else
+        colorsGradient = "rgb(255, 233, 191";
   }
   else {
     sliderDisabled = 'style="display:none"';
   }
-  return `<div class="roomSelecter my-3" style="background: linear-gradient(to right,${colorsGradient});" class="btn roomSelecter my-2">
+  return `<div class="roomSelecter my-3" style="background: ${colorsGradient});" class="btn roomSelecter my-2">
           <button class="btn roomBtn" onclick="selectRoom_click(${key});">${name}</button>
             <label class="switch swRight">
               <input type="checkbox" id="roomSwitch${id}" onclick="setRoomState_click(${id})" ${checkedStr}>
@@ -167,7 +174,7 @@ function makeLightSelecter(light) {
     }
     if (light.bri) {
       pickersCollapse = `<button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup${light.id}" aria-expanded="true" aria-controls="pickerPopup${light.id}"><img src="svg/chevron-down.svg"></button>
-      <div class="collapse" id="pickerPopup${light.id}" class="accordion-collapse collapse show" data-bs-parent="#lightSelecters">
+      <div id="pickerPopup${light.id}" class="collapse accordion-collapse" data-bs-parent="#lightSelecters">
         <div class="card card-body rounded-10 pickerPopupCard">
             ${sliders}
         </div>
