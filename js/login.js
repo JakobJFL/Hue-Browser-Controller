@@ -8,8 +8,16 @@ const postJsonObj = {devicetype: "Hue-Browser-Controller"};
 checkLocalStorage();
 
 function checkLocalStorage() { 
-    if (localStorage.getItem('hueAcc')) 
-       setDashboard(); 
+    let acc;
+    if (acc = localStorage.getItem('hueAcc')) {
+        connectionGood(JSON.parse(acc)).then(() => {
+            setDashboard(); 
+        }).catch(err => {
+            document.getElementById("overlay").style.display = "none";
+            console.error("Local storage was incorrect - " + err);
+            localStorage.removeItem("hueAcc");
+        });
+    }
     else 
         document.getElementById("overlay").style.display = "none";
 }
