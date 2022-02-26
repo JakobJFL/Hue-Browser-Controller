@@ -32,7 +32,7 @@ async function makeNewConnection(event) {
             else if (err == "Error: Timeout")  
                 showNewConError("Timeout - got no response from the Hue bridge. Check your and the bridges network connection"); 
             else 
-                showNewConError("Error - try and enter the Hue bridge IP manually" + err); 
+                showNewConError("Error - try and enter the Hue bridge IP manually - " + err); 
         }
     }
     else if (event.target.id === "existingConnection") {
@@ -50,8 +50,9 @@ function findRightIp(resGet) {
                 if (resPost[0].error.type == 101) 
                     resolve(data.internalipaddress);
             }).catch(err => {
-                if (timesFailed === resGet.length)
-                    reject("Timeout");
+                timesFailed++;
+                if (timesFailed >= resGet.length)
+                    reject("All IP's failed");
                 else if (err != "Error: AbortTimeout" && err != "Error: no192Start" && err != "TypeError: Failed to fetch") 
                     reject(err);
             });
