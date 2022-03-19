@@ -186,6 +186,7 @@ async function getDashboard(acc) {
         let scenes = await getHueScenes(acc);
         return new DashboardPage(rooms, lights, scenes);
     } catch(err) {
+        console.error(err);
         return err;
     }
 }

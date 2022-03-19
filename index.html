@@ -29,8 +29,8 @@
           </div>
           <div class="col-md-6 right-side text-center p-4">
             <h1 class="display-5">Online Hue Controller</h1>
-            <h3 class="fs-6">The website <strong class="text-danger">requires</strong> that "insecure content" is allowed</h3>
-            <button type="button" class="btn btn-outline-secondary btn-round mt-0 mb-3" data-bs-toggle="modal" data-bs-target="#InsecureContentModal">Open guide</button>
+            <p class="fs-6">The website <strong class="text-danger">requires</strong> that "insecure content" is allowed</p>
+            <button type="button" class="btn btn-outline-secondary btn-sm btn-round mt-0 mb-3" data-bs-toggle="modal" data-bs-target="#InsecureContentModal">Open guide</button>
             <h2 class="fs-4">Choose connection option:</h2>
             <div class="text-center">
               <button type="button" class="btn btn-primary btn-round" data-bs-toggle="collapse" data-bs-target="#newConnection">Create a new connection</button>
@@ -38,9 +38,9 @@
             </div>
             <div id="connectionType">
               <div class="collapse show" id="placeholder" data-bs-parent="#connectionType">
-                <p class="text-center mt-4 mb-0 fs-4">Welcome!</p>
+                <p class="text-center mt-3 mb-0 fs-4">Welcome!</p>
                 <p class="text-center fs-5">Here you can control all your Philips Hue lighting. No installs, and everything is running locally in your browser.</p>
-                <p class="text-center mb-4 ">Connect to the Philips Hue bridge by using an existing API connection, or create a new one with the website's auto-connect feature. </p>
+                <p class="text-center mb-5">Connect to the Philips Hue bridge by using an existing API connection, or create a new one with the website's auto-connect feature. </p>
               </div>
               <div class="collapse accordion-collapse" id="existingConnection" data-bs-parent="#connectionType">
                 <br>
@@ -76,7 +76,7 @@
               </div>
             </div>
             <footer class="text-muted bottom-text-left">
-              <p class="text-center">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke <a href="https://github.com/JakobJFL" target="_blank">Github</a></p>
+              <p class="text-center ">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke <a href="https://github.com/JakobJFL" target="_blank">Github</a> - <a href="https://www.youtube.com/channel/UCf3cp8GGxbCJ8IZfGBmbljw" target="_blank">YouTube</a></p>
             </footer>
           </div>
         </div>  
@@ -105,11 +105,6 @@
             The "Not secure" text at the URL bar is also because of this. 
             This is all running locally, <strong>so none of this affects the security of any device on your network</strong>, if you were ever in doubt.
             Everything runs on the client side and <strong> nothing is being tracked or stored outside your own network.</strong></p>
-            <!--
-              So, you are looking at a code! Let me tell you one more thing because I didn't know whether to include this or not:
-              Mixed content can be a big issue but in this case, there's no problem. 
-              As long as you trust everyone on your network which you probably do since you're using Philips Hue.
-            -->
         <div class="modal-footer">
           <button type="button" class="btn btn-primary rounded-10" onclick="window.location.reload();">Done</button>
         </div>
@@ -124,6 +119,5 @@
   <script src="js/mainScript.js"></script>
   <script src="js/login.js"></script>
   <script src="js/reactOnInput.js"></script>
-  <script src="../hueTests.js"></script>
 </body>
 </html>

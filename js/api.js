@@ -38,7 +38,11 @@ function postRequest(url, json) {
 
 function getRequest(url) {
     return new Promise(function(resolve, reject) {
-        fetch('http://'+url)
+        fetch('http://'+url, {
+            headers: {
+            'Content-Type': 'application/json'
+          }
+        })
         .then((response) => response.json())
         .then((data) => {
             resolve(data);

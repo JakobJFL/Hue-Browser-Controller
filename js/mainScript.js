@@ -55,10 +55,8 @@ function getHueRooms(acc) {
 function getHueLights(acc) {
     return  new Promise((resolve, reject) => {
         getRequest(acc.ip+'/api/'+acc.token+'/lights').then(data => {
-            console.log(data);
             if (testingEnvironment) 
                 data = JSON.parse(testLights);
-            console.log(data);
             let lights = [];
             for (const [key, value] of Object.entries(data)) {
                 if (value && allowedLights.includes(value.type)) {

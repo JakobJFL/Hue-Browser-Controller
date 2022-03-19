@@ -70,8 +70,8 @@ class DashboardPage {
 
     let bottomHtml = "</div></div></div></div>";
     let footer = ` <footer class="text-white bottom-text">
-    <p class="text-center">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke <a href="https://github.com/JakobJFL" class="link-white" target="_blank">Github</a></p>
-  </footer>`;
+      <p class="text-center ">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke <a href="https://github.com/JakobJFL" class="link-white" target="_blank">Github</a> - <a href="https://www.youtube.com/channel/UCf3cp8GGxbCJ8IZfGBmbljw" class="link-white" target="_blank">YouTube</a></p>
+    </footer>`;
     if (selectedRoomID === -1) 
       selectedRoomID = allRooms[0].key;
 
