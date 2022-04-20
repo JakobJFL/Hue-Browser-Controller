@@ -7,6 +7,20 @@ class DashboardPage {
     this.scenes = scenes;
   }
   getHtml(acc) { 
+    let storage = localStorage.getItem('siteSettings');
+    let settingsObj = {
+      effects: false,
+      showUnreachable: false
+    };
+    if (storage) 
+      settingsObj = JSON.parse(storage);
+    else 
+      localStorage.setItem('siteSettings', JSON.stringify(settingsObj)); 
+    let effects = "";
+    let showUnreachableC = "";
+    if (settingsObj.effects) effects = "checked";
+    if (settingsObj.showUnreachable) showUnreachableC = "checked";
+
     let header = `<div class="container pt-4">
       <header class="pb-3 mb-4">
         <div class="top-bar">
@@ -14,8 +28,8 @@ class DashboardPage {
             <span class="fs-4 text-white">Online Hue Controller</span>
           </a>
           <div class="d-flex flex-row-reverse top-bar-right">
-            <a id="logOutBtn" class="nav-link link-white">Logout</a>
-            <a id="logOutBtn" class="nav-link link-white" type="button" data-bs-toggle="modal" data-bs-target="#SettingsModal" >More info</a>
+            <a class="nav-link link-white" href="download.html">Download</a>
+            <a class="nav-link link-white" type="button" data-bs-toggle="modal" data-bs-target="#SettingsModal" >Settings</a>
           </div>
         </div>
 
@@ -24,10 +38,42 @@ class DashboardPage {
           <div class="modal-dialog modal-lg">
             <div class="modal-content rounded-15">
               <div class="modal-header modal-header-15">
-                <h5 class="modal-title text-white" id="exampleModalLabel">More info</h5>
+                <h5 class="modal-title text-white" id="exampleModalLabel">More</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
+                <h2 class="fs-4">Options</h2>
+                <h3 class="fs-5 text-muted">Hue Controller options</h3>
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th class="text-muted" scope="row">
+                      Enable effects:
+                        
+                      </th>
+                      <td>
+                        <label class="switch">
+                          <input type="checkbox" id="effectsSwitch" ${effects}>
+                          <span class="slider"></span>
+                        </label>   
+                      </td>
+                      <td>Enable special effects that can be applied to a room</td>
+                    </tr>
+                    <tr>
+                      <th class="text-muted" scope="row">
+                      Show unreachable:
+                      </th>
+                      <td class="float-left">
+                        <label class="switch">
+                          <input type="checkbox" id="reachableSwitch" ${showUnreachableC}>
+                          <span class="slider"></span>
+                        </label>   
+                      </td>
+                      <td>Show lights that are unreachable to the bridge</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h2 class="fs-4 ">Bridge</h2>
                 <h3 class="fs-5 text-muted">Saved hue login details</h3>
                 <table class="table">
                   <tbody>
@@ -35,9 +81,13 @@ class DashboardPage {
                     <tr><th class="text-muted" scope="row">Access token:</th><td>${acc.token}</td> </tr>
                   </tbody>
                 </table>
-              </div>
+                <h3 class="fs-5 text-muted" >Remove saved details</h3>
+                <button type="button" id="logOutBtn" class="btn btn-outline-danger my-2 btn-round">Logout</button>
+                <p class="mb-1">This will remove the saved hue login details from the website's local storage. This means the you will not automatically be logging in when you enter the website.</p>
+                <p>You can still log in with the same details after this.</p>
+                </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary rounded-10" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary rounded-10" id="saveSettingsBtn" data-bs-dismiss="modal">Save settings</button>
               </div>
             </div>
           </div>
@@ -54,19 +104,23 @@ class DashboardPage {
                       </div>
                     <div id="roomSelecters">`                     
     let allHtml = header+rommsHtml;
-    /*                        <label class="refreshLabel">
-                          <input type="checkbox" id="refreshSwitchBtn">
-                          <div class="btn btn-secondary refreshSwitch">Auto refresh</div>
-                        </label>   
-                        */
+
     let lightsHtml = `</div></div></div> 
                       <div class="col-md-8">
                       <div class="row test row-cols-1 m-0">
                       <div class="p-3 mt-2 container-half text-white bg-dark shadow-cos rounded-15 d-flex align-content-start flex-wrap" id="lightSelecters">
-                      <h1 class="display-8 my-2 w-100">Lights</h1>`;
+                      <h1 class="display-8 my-2 w-100 ">Lights</h1>`;
 
     let sceenHtml = `</div><div class="p-4 container-half mt-2 text-white bg-dark shadow-cos rounded-15" id="sceneSelecters">
-                     <h1 class="display-8 my-2 w-100">Scenes</h1>`
+    <div class="d-flex w-100">          
+    <h1 class="display-8 my-2 w-100">Scenes</h1>`;
+    if (settingsObj.effects) {
+      sceenHtml += `<button onclick="colorloopEffect_click()" type="button" class="btn btn-secondary btn-round h-50 m-1">Colorloop</button>
+      <button type="button" onclick="breatheEffect_click()" class="btn btn-secondary btn-round h-50 m-1">Breathe</button>
+      <button type="button" onclick="noneEffect_click()" class="btn btn-secondary btn-round h-50 m-1">None</button>`;
+    }
+   
+    sceenHtml +=`</div>`;
 
     let bottomHtml = "</div></div></div></div>";
     let footer = ` <footer class="text-white bottom-text">
@@ -87,7 +141,7 @@ class DashboardPage {
     allHtml += lightsHtml;
     for (const light of this.lights) {
       if (allRooms[selectedRoomID].lightsInRoom.includes(String(light.id)))
-        allHtml += makeLightSelecter(light);
+        allHtml += makeLightSelecter(light, settingsObj);
     }
     allHtml += sceenHtml;
     for (const scene of this.scenes) {
@@ -105,6 +159,9 @@ function makeRoomSelecter(name, on, key, id, bri, lights) {
   let colorsGradient = "linear-gradient(to right,";
   let colorConv = new ColorConverter();
   let sliderDisabled = "";
+  let selected = "";
+  if (selectedRoomID == key) 
+    selected = "selected";
   if (on) {
     checkedStr = "checked";
     let gradientFillpercent = 0;
@@ -135,8 +192,8 @@ function makeRoomSelecter(name, on, key, id, bri, lights) {
   else {
     sliderDisabled = 'style="display:none"';
   }
-  return `<div class="roomSelecter my-3" style="background: ${colorsGradient});" class="btn roomSelecter my-2">
-          <button class="btn roomBtn" onclick="selectRoom_click(${key});">${name}</button>
+  return `<div class="roomSelecter ${selected} my-3" style="background: ${colorsGradient});" class="btn roomSelecter my-2">
+          <button class="btn roomBtn" onclick="selectRoom_click(this,${key});">${name}</button>
             <label class="switch swRight">
               <input type="checkbox" id="roomSwitch${id}" onclick="setRoomState_click(${id})" ${checkedStr}>
               <span class="slider"></span>
@@ -155,7 +212,8 @@ function compare(a, b) {
   return 0;
 }
 
-function makeLightSelecter(light) {
+function makeLightSelecter(light, settingsObj) {
+  if (!light.reachable && !settingsObj.showUnreachable) return "";
   let colorConv = new ColorConverter();
   let color = "";
   let textColor = "text-hover-white";
@@ -173,7 +231,14 @@ function makeLightSelecter(light) {
       sliders += `<input type="range" min="153" max="500" value="${light.ct}" class="tempSlider sliderBar" id="tempSlider${light.id}" onchange="tempSlider_change(${light.id})">`;
     }
     if (light.bri) {
-      pickersCollapse = `<button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup${light.id}" aria-expanded="true" aria-controls="pickerPopup${light.id}"><img src="svg/chevron-down.svg"></button>
+      pickersCollapse = `<button class="btn pickerActivator" type="button" data-bs-toggle="collapse" data-bs-target="#pickerPopup${light.id}" aria-expanded="true" aria-controls="pickerPopup${light.id}">`
+      if (!light.reachable) {
+        pickersCollapse += `Unreachable`;
+      } 
+      else 
+        pickersCollapse += `<img src="svg/chevron-down.svg">`;
+
+      pickersCollapse += `</button>
       <div id="pickerPopup${light.id}" class="collapse accordion-collapse" data-bs-parent="#lightSelecters">
         <div class="card card-body rounded-10 pickerPopupCard">
             ${sliders}
@@ -182,12 +247,6 @@ function makeLightSelecter(light) {
     }
     else 
       color = "230, 230, 230";
-  }
-  if (!light.reachable) {
-    return `<div class="lightSelecter my-2" id="${light.id}" style="background-color: rgb(${color})"> 
-    <button type="button" class="btn nowrapTxt ${textColor}">${light.name}</button>
-      <p class"text-danger">Unreachable</p>
-    </div>`
   }
   return `<div class="lightSelecter my-2" id="${light.id}" style="background-color: rgb(${color})"> 
   <button type="button" class="btn nowrapTxt ${textColor}" onclick="setLightState_click(${light.id}, ${light.on})">${light.name}</button>

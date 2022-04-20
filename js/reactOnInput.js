@@ -26,38 +26,75 @@ function setRoomState_click(id) {
   new actions().changeRoomState(id, isChecked, getBri).then(() => setDashboard()); // Refresh html
 }
   
-function selectRoom_click(roomId) {
+function selectRoom_click(obj, roomId) {
+  let settingsObj = JSON.parse(localStorage.getItem('siteSettings'));
+
   let lightHtml = `<h1 class="display-8 my-2 w-100">Lights </h1>`;
-  let scenehtml = `<h1 class="display-8 my-2 w-100">Scenes</h1>`;
+  let sceenHtml = `<div class="d-flex w-100"><h1 class="display-8 my-2 w-100">Scenes</h1>`;
+  if (settingsObj.effects) {
+    sceenHtml += `<button onclick="colorloopEffect_click()" type="button" class="btn btn-secondary btn-round h-50 m-1">Colorloop</button>
+    <button type="button" onclick="breatheEffect_click()" class="btn btn-secondary btn-round h-50 m-1">Breathe</button>
+    <button type="button" onclick="noneEffect_click()" class="btn btn-secondary btn-round h-50 m-1">None</button>`;
+  }
+  sceenHtml +=`</div>`;
   selectedRoomID = roomId;
   let acc = getAccess();
   getHueLights(acc).then(lights => {
     getHueScenes(acc).then(scenes => {
       for (const light of lights) {
         if (allRooms[selectedRoomID].lightsInRoom.includes(light.id))
-          lightHtml += makeLightSelecter(light);
+          lightHtml += makeLightSelecter(light, settingsObj);
       }
       for (const scene of scenes) {
         if (allRooms[selectedRoomID].id == scene.group)
-        scenehtml += makeSceneSelecter(scene);
+        sceenHtml += makeSceneSelecter(scene);
       }
       document.getElementById("lightSelecters").innerHTML = lightHtml;
-      document.getElementById("sceneSelecters").innerHTML = scenehtml;
+      document.getElementById("sceneSelecters").innerHTML = sceenHtml;
     }).catch(err => console.error(err));
   }).catch(err => console.error(err));
+  for (const element of document.querySelectorAll(".roomSelecter")) {
+    element.classList.remove('selected');
+  }
+  obj.parentElement.classList.add('selected');
 }
   
 function setLightState_click(id, isOn) {  
   new actions().changeLightState(id, !isOn).then(() => setDashboard()); // Refresh html
 }
 
-function setLightRange_change(id, isOn) {  
-  let getBri = document.getElementById("lightSlider"+id).value;
-  new actions().changeLightState(id, isOn, getBri).then(() => setDashboard()); // Refresh html
-}
-
 function selectScene_click(key) {
   new actions().changeScene(allRooms[selectedRoomID].id, key).then(() => setDashboard()); // Refresh html
+}
+
+function colorloopEffect_click() {
+  let acc = getAccess();
+  let url = acc.ip+'/api/'+acc.token+'/groups/'+allRooms[selectedRoomID].id+'/action/';
+  let json = {
+    on: true,
+    effect: 'colorloop'
+  };
+
+  putRequest(url, json);
+}
+function breatheEffect_click() {
+  let acc = getAccess();
+  let url = acc.ip+'/api/'+acc.token+'/groups/'+allRooms[selectedRoomID].id+'/action/';
+  let json = {
+    on: true,
+    bri: 255,
+    alert: 'lselect'
+  };
+  putRequest(url, json);
+}
+function noneEffect_click() {
+  let acc = getAccess();
+  let url = acc.ip+'/api/'+acc.token+'/groups/'+allRooms[selectedRoomID].id+'/action/';
+  let json = {
+    effect: 'none',
+    alert: 'none'
+  };
+  putRequest(url, json);
 }
 
   

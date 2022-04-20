@@ -123,7 +123,7 @@ function setAutoConnectText(str, img) {
     let text = `<p class="text-center">${str}</p>`;
     switch (img) {
         case "loading":
-            text += `<img id="loadingImg" src="img/loading.svg">`; break;
+            text += `<img id="loadingImg" src="svg/loading.svg">`; break;
         case "push-link":
             text += `<img id="loadingImg" src="img/push-link.png">`; break;
     }
@@ -169,8 +169,9 @@ function setDashboard() {
     let acc = getAccess();
     getDashboard(acc).then(dashboard => {
         document.getElementById("mainSite").innerHTML = dashboard.getHtml(acc);
-        document.getElementById("refreshBtn").addEventListener("click", refresh); 
+        document.getElementById("refreshBtn").addEventListener("click", setDashboard); 
         document.getElementById("logOutBtn").addEventListener("click", logOut);
+        document.getElementById("saveSettingsBtn").addEventListener("click", saveSettings);
     }).catch(err => {
         document.getElementById("overlay").style.display = "none";
         console.error(err);

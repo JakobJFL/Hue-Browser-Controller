@@ -6,7 +6,7 @@
 
 /* width */
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 9px;
 }
 
 /* Track */
@@ -18,7 +18,7 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: #898999; 
+    background: #767685; 
     border-radius: 10px;
 }
 
@@ -53,11 +53,9 @@ body {
 
 }
 
-
 .pickerPopupCard {
     background-color: #000;
 }
-
 
 .btn:focus {
     box-shadow: none;
@@ -246,4 +244,8 @@ div {
 .modal-header-15 {
     border-top-left-radius: 14px;
     border-top-right-radius: 14px;
+}
+
+.selected {
+    box-shadow: 0 0 0 0.35rem #5a44d98f;
 }
