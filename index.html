@@ -14,7 +14,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
   <link rel="manifest" href="favicon/site.webmanifest">
-  <title>Online Hue Controller</title>
+
+  <meta property="og:image" content="https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/main/img/Control%20panel.jpg" />
+	<meta name="description" content="Control all your Philips Hue lighting from a website or download The Open Hue Controller for your computer.">
+
+  <title>Open Hue Controller</title>
 </head>
 <body>
   <main id="mainSite">
@@ -29,17 +33,17 @@
             <img src="img/Light Hue Backgrund.jpg" id="loginImg">
           </div>
           <div class="col-md-6 right-side text-center p-4">
-            <h1 class="display-5">Online Hue Controller</h1>
+          <h1 class="display-5 ">Open Hue Controller</h1>
             <p class="fs-6">The website <strong class="text-danger">requires</strong> that "insecure content" is allowed</p>
             <button type="button" class="btn btn-outline-secondary btn-sm btn-round mt-0 mb-3" data-bs-toggle="modal" data-bs-target="#InsecureContentModal">Open guide</button>
-            <h2 class="fs-4">Choose connection option:</h2>
+            <h3 class="fs-4">Choose connection option:</h3>
             <div class="text-center">
               <button type="button" class="btn btn-primary btn-round" data-bs-toggle="collapse" data-bs-target="#newConnection">Create a new connection</button>
               <button type="button" class="btn btn-outline-primary btn-round" data-bs-toggle="collapse" data-bs-target="#existingConnection">Use existing connection</button>
             </div>
             <div id="connectionType">
               <div class="collapse show" id="placeholder" data-bs-parent="#connectionType">
-                <p class="text-center mt-3 mb-0 fs-4">Welcome!</p>
+                <p class="text-center mt-3 mb-0 fs-4">The Online Controller</p>
                 <p class="text-center fs-5">Here you can control all your Philips Hue lighting. No installs, and everything is running locally in your browser.</p>
                 <p class="text-center mb-5">Connect to the Philips Hue bridge by using an existing API connection, or create a new one with the website's auto-connect feature. </p>
               </div>

@@ -25,7 +25,7 @@ class DashboardPage {
       <header class="pb-3 mb-4">
         <div class="top-bar">
           <a class="d-flex align-items-center text-dark text-decoration-none">
-            <span class="fs-4 text-white">Online Hue Controller</span>
+            <span class="fs-4 text-white">Open Hue Controller</span>
           </a>
           <div class="d-flex flex-row-reverse top-bar-right">
             <a class="nav-link link-white" href="download.html">Download</a>
@@ -83,7 +83,7 @@ class DashboardPage {
                 </table>
                 <h3 class="fs-5 text-muted" >Remove saved details</h3>
                 <button type="button" id="logOutBtn" class="btn btn-outline-danger my-2 btn-round">Logout</button>
-                <p class="mb-1">This will remove the saved hue login details from the website's local storage. This means the you will not automatically be logging in when you enter the website.</p>
+                <p class="mb-1">This will remove the saved hue login details from the website's local storage. This means the you will not automatically log in when you enter the website.</p>
                 <p>You can still log in with the same details after this.</p>
                 </div>
               <div class="modal-footer">
