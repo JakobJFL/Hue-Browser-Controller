@@ -40,6 +40,10 @@
     border-radius: 25px;
 }
 
+.verySmallText {
+    font-size: 11pt;
+}
+
 /*
 .px-6 {
     padding-right: 3.4rem !important;
