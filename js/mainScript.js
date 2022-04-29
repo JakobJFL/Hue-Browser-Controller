@@ -98,40 +98,21 @@ function getHueScenes(acc) {
         }).catch(err => reject(err));
     });
 }
-function refresh() {
-    setDashboard();
-}
 
-/*
-function autoRefresh() {
-    if (document.getElementById("refreshSwitchBtn").checked) {
-        let refreshInterval = setInterval(refreshIntervalFun, 1000);
-        function refreshIntervalFun() {
-            refreshLightRooms();
-            if (!document.getElementById("refreshSwitchBtn").checked)
-                clearInterval(refreshInterval)
+function saveSettings() {
+    let storage = localStorage.getItem('siteSettings');
+    let settingsObj = {
+        effects: document.getElementById("effectsSwitch").checked,
+        showUnreachable: document.getElementById("reachableSwitch").checked
+    }
+    if (storage) {
+        let settingsObjStorage = JSON.parse(storage); 
+        if (settingsObjStorage.effects !== settingsObj.effects || settingsObjStorage.showUnreachable !== settingsObj.showUnreachable) {
+            localStorage.setItem('siteSettings', JSON.stringify(settingsObj)); 
+            setDashboard();
         }
     }
+    else {
+        localStorage.setItem('siteSettings', JSON.stringify(settingsObj)); 
+    }
 }
-*/
-/*
-function refreshLightRooms() {
-    let lightHtml = `<h1 class="display-8 my-2 w-100">Lights </h1>`;
-    let roomHtml ="";
-    let acc = getAccess();
-    
-    getHueLights(acc).then(lights => {
-        getHueRooms(acc).then(rooms => {
-            for (const room of rooms) {
-                roomHtml += makeRoomSelecter(room.name, room.on, room.id, room.xy, room.ct, room.bri);
-            }
-            for (const light of lights) {
-                if (allRooms[String(selectedRoomID-1)].lightsInRoom.includes(String(light.id))) // THIS!!!!!!!!!!
-                    lightHtml += makeLightSelecter(light);
-            }
-            document.getElementById("lightSelecters").innerHTML = lightHtml;
-            document.getElementById("roomSelecters").innerHTML = roomHtml;
-        }).catch(err => console.error(err));
-    }).catch(err => console.error(err));
-}
-*/

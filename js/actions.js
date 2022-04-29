@@ -15,7 +15,7 @@ class actions {
     
     changeLightState(selectLightId, setOn) {
         return new Promise((resolve, reject) => {
-            let json = { on: setOn };
+            let json = { on: setOn};
             let acc = getAccess();
             let url = acc.ip+'/api/'+acc.token+'/lights/'+selectLightId+'/state/';
             putRequest(url, json).then(response => {
@@ -39,6 +39,6 @@ class actions {
         let acc = getAccess();
         let url = acc.ip+'/api/'+acc.token+'/lights/'+lightId+'/state/';
         putRequest(url, jsonObj)
-        .catch(err => console.error(err))
+        .catch(err => console.error(err));
     }
 }
