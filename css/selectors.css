@@ -1,0 +1,36 @@
+.solid-colourSelector {
+    padding: 15px;
+    margin: 1px;
+    border-radius: 25px;
+    transition-duration: 0.3s;
+}
+
+.solid-colourSelector:hover {
+    opacity: 0.80;
+    box-shadow: 2px 3px 8px #0000005f;
+}
+
+.solid-colourSelector:active {
+    opacity: 0.60;
+    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.411);
+}
+
+.solid-purple {
+    border: 2px solid #726fc5;
+    background-color: #524ec9;
+}
+
+.solid-black {
+    border: 2px solid #8f8f8f;
+    background-color: #464646;
+}
+
+.solid-blue {
+    border: 2px solid #589bff;
+    background-color: #0d6efd;
+}
+
+.solid-white {
+    border: 2px solid #7d7d7d;
+    background-color: #f5f5f5;
+}

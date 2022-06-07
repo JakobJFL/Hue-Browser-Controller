@@ -169,6 +169,9 @@ function setDashboard() {
     let acc = getAccess();
     getDashboard(acc).then(dashboard => {
         document.getElementById("mainSite").innerHTML = dashboard.getHtml(acc);
+        let storage = localStorage.getItem('siteSettings');
+        if (storage) 
+            changeTheme(JSON.parse(storage).theme);
         document.getElementById("refreshBtn").addEventListener("click", setDashboard); 
         document.getElementById("logOutBtn").addEventListener("click", logOut);
         document.getElementById("saveSettingsBtn").addEventListener("click", saveSettings);

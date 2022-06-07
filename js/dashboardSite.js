@@ -39,7 +39,7 @@ class DashboardPage {
             <div class="modal-content rounded-15">
               <div class="modal-header modal-header-15">
                 <h5 class="modal-title text-white" id="exampleModalLabel">More</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <h2 class="fs-4">Options</h2>
@@ -71,6 +71,17 @@ class DashboardPage {
                       </td>
                       <td>Show lights that are unreachable to the bridge</td>
                     </tr>
+                    <tr>
+                      <th class="text-muted" scope="row">
+                      Change theme:
+                      </th>
+                      <td class="float-left">
+                        <button type="button" onClick="changeTheme(0)" class="solid-colourSelector solid-purple"></button>
+                        <button type="button" onClick="changeTheme(1)" class="solid-colourSelector solid-blue"></button>
+                        <button type="button" onClick="changeTheme(2)" class="solid-colourSelector solid-black"></button>
+                        <button type="button" onClick="changeTheme(3)" class="solid-colourSelector solid-white"></button>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
                 <h2 class="fs-4 ">Bridge</h2>
@@ -87,7 +98,7 @@ class DashboardPage {
                 <p>You can still log in with the same details after this.</p>
                 </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary rounded-10" id="saveSettingsBtn" data-bs-dismiss="modal">Save settings</button>
+                <button type="button" class="btn btn-secondary btn-round" id="saveSettingsBtn" data-bs-dismiss="modal">Save settings</button>
               </div>
             </div>
           </div>
