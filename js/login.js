@@ -165,10 +165,22 @@ function loginExistingCon() {
     });
 }
 
-function setDashboard() {
+async function setDashboard() {
     let acc = getAccess();
+    try {
+        let rooms = await getHueRooms(acc);
+        let lights = await getHueLights(acc);
+        let scenes = await getHueScenes(acc);
+        const domContainer = document.getElementById("mainSite");
+        const root = ReactDOM.createRoot(domContainer);
+        root.render(<Dashboard acc={acc}/>);
+    } catch(err) {
+        console.error(err);
+        return err;
+    }
+    /*
     getDashboard(acc).then(dashboard => {
-        document.getElementById("mainSite").innerHTML = dashboard.getHtml(acc);
+
         let storage = localStorage.getItem('siteSettings');
         if (storage) 
             changeTheme(JSON.parse(storage).theme);
@@ -181,6 +193,7 @@ function setDashboard() {
         alert("A problem occurred while connecting to the Philips Hue Bridge. Please try again.");
         logOut();
     });
+    */
 }
 
 async function getDashboard(acc) {

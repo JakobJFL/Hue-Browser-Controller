@@ -18,7 +18,9 @@
   <meta name="theme-color" content="#5753b9">
   <meta property="og:image" content="https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/main/img/ogImage.jpg" />
 	<meta name="description" content="Control all your Philips Hue lighting from a website or download The Open Hue Controller for your computer.">
-
+  <script src="https://unpkg.com/react@18.1.0/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18.1.0/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script> <!-- Only for dev-->
   <title>Open Hue Controller</title>
 </head>
 <body>
@@ -121,9 +123,9 @@
   <script src="js/api.js"></script>
   <script src="js/actions.js"></script>
   <script src="libraries/rgb-color-converter/ColorConverter.js"></script>
-  <script src="js/dashboardSite.js"></script>
+  <script type="text/babel" src="js/dashboardSite copy.js"></script>
   <script src="js/mainScript.js"></script>
-  <script src="js/login.js"></script>
+  <script type="text/babel" src="js/login.js"></script>
   <script src="js/reactOnInput.js"></script>
 </body>
 </html>
