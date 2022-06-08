@@ -173,7 +173,7 @@ async function setDashboard() {
         let scenes = await getHueScenes(acc);
         const domContainer = document.getElementById("mainSite");
         const root = ReactDOM.createRoot(domContainer);
-        root.render(<Dashboard acc={acc}/>);
+        root.render(<Dashboard acc={acc} settings={getSettings()}/>);
     } catch(err) {
         console.error(err);
         return err;
