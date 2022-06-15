@@ -1,7 +1,7 @@
 'use strict';
 const maxLightsInGradient = 4;
 
-class Dashboard extends React.Component {
+class ControllerSite extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -84,8 +84,14 @@ class Dashboard extends React.Component {
             onTheme={(i)=>this.onTheme(i)}
             onEffects={(i)=>this.onEffects(i)}
             onShowUnreachable={(i)=>this.onShowUnreachable(i)}
-
           />
+          <Dashboard hueData={this.props.hueData}/>
+          <footer className="text-white bottom-text">
+            <p className="text-center">&copy;  {new Date().getFullYear()} Jakob Frederik Lykke <a href="https://github.com/JakobJFL" className="link-white" target="_blank">Github
+              </a> - 
+              <a href="https://www.youtube.com/channel/UCf3cp8GGxbCJ8IZfGBmbljw" className="link-white" target="_blank">YouTube</a>
+            </p>
+          </footer>
         </div>
         {this.changeTheme(this.state.settings.theme)}
       </React.Fragment>
@@ -126,7 +132,7 @@ class SettingsModal extends React.Component {
                       Show unreachable:
                       </th>
                       <td className="float-left">
-                      <ToggleSwitch onChange={(e)=>this.props.onShowUnreachable(e.target.checked)} isToggled={settingsObj.showUnreachable}/>
+                        <ToggleSwitch onChange={(e)=>this.props.onShowUnreachable(e.target.checked)} isToggled={settingsObj.showUnreachable}/>
                       </td>
                       <td>Show lights that are unreachable to the bridge</td>
                     </tr>

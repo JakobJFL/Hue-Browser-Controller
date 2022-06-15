@@ -1,5 +1,79 @@
+class Dashboard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    }
+  }
+
+  render() {
+    return(
+      <React.Fragment>
+        <div className="row align-items-md-stretch">
+          <div className="col-md-4">
+            <div className="container-full p-4 mt-2 text-white bg-dark shadow-cos rounded-15">
+              <div className="d-flex flex-row justify-content-between">
+                <h1 className="display-8">Rooms</h1>
+                <button id="refreshBtn" className="btn btn-secondary btn-refresh">Refresh</button>
+              </div>
+              <div id="roomSelecters">
+                {
+                  this.props.hueData.rooms.map((v,i) => { 
+                    return <RoomSelecter key={i} roomData={v}/>
+                  })
+                }
+              </div>
+            </div>
+          </div>
+          <div className="col-md-8">
+            <div className="row test row-cols-1 m-0">
+              <div className="p-3 mt-2 container-half text-white bg-dark shadow-cos rounded-15 d-flex align-content-start flex-wrap" id="lightSelecters">
+                <h1 className="display-8 my-2 w-100 ">Lights</h1>
+
+              </div>
+              <div className="p-4 container-half mt-2 text-white bg-dark shadow-cos rounded-15" id="sceneSelecters">
+                <div className="d-flex w-100">          
+                  <h1 className="display-8 my-2 w-100">Scenes</h1>
+
+                </div>
+              </div>
+            </div>  
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  }
+}
 
 
+class RoomSelecter extends React.Component {
+  constructor(props) {
+    super(props);
+    let roomData = this.props.roomData;
+    console.log(roomData);
+    this.state = {
+      on: roomData.on,
+    }
+  }
+
+  onSwitch(e) {
+    this.setState({
+      on: e,
+    })
+    setRoomState_click(this.props.roomData.id, e);
+  }
+
+  render() {
+  return (
+    <React.Fragment>
+      <div className="roomSelecter my-3 btn roomSelecter my-2">
+        <button className="btn roomBtn" >test</button>
+          <ToggleSwitch onChange={e=>this.onSwitch(e.target.checked)} isToggled={this.state.on}/>
+          <input type="range" min="0" max="254" className="sliderBar"/>
+      </div>
+    </React.Fragment>
+    );
+  }
+}
 
 
 
@@ -45,6 +119,7 @@ class DashboardPage {
   
         </header>
         <div className="row align-items-md-stretch">`;
+
       let rommsHtml = `<div className="col-md-4">
                        <div className="container-full p-4 mt-2 text-white bg-dark shadow-cos rounded-15">
                         <div className="d-flex flex-row justify-content-between">

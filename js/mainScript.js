@@ -99,21 +99,3 @@ function getHueScenes(acc) {
     });
 }
 
-function saveSettings() {
-    let storage = localStorage.getItem('siteSettings');
-    let settingsObj = {
-        effects: document.getElementById("effectsSwitch").checked,
-        showUnreachable: document.getElementById("reachableSwitch").checked
-    }
-    if (storage) {
-        let settingsObjStorage = JSON.parse(storage); 
-        settingsObj.theme = settingsObjStorage.theme;
-        localStorage.setItem('siteSettings', JSON.stringify(settingsObj)); 
-        if (settingsObjStorage.effects !== settingsObj.effects || settingsObjStorage.showUnreachable !== settingsObj.showUnreachable) {
-            setDashboard();
-        }
-    }
-    else {
-        localStorage.setItem('siteSettings', JSON.stringify(settingsObj)); 
-    }
-}

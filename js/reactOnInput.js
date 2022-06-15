@@ -20,10 +20,10 @@ function tempSlider_change(lightId){
   new actions().sliderChange(lightId, obj);
 }
 
-function setRoomState_click(id) {
-  let isChecked = document.getElementById("roomSwitch"+id).checked;
-  let getBri = document.getElementById("roomSlider"+id).value;
-  new actions().changeRoomState(id, isChecked, getBri).then(() => setDashboard()); // Refresh html
+function setRoomState_click(id, isChecked) {
+  //let getBri = document.getElementById("roomSlider"+id).value;
+
+  new actions().changeRoomState(id, isChecked, 255); // Refresh html
 }
   
 function selectRoom_click(obj, roomId) {
@@ -60,7 +60,7 @@ function selectRoom_click(obj, roomId) {
 }
   
 function setLightState_click(id, isOn) {  
-  new actions().changeLightState(id, !isOn).then(() => setDashboard()); // Refresh html
+  new actions().changeLightState(id, !isOn); // Refresh html
 }
 
 function selectScene_click(key) {

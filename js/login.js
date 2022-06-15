@@ -168,12 +168,14 @@ function loginExistingCon() {
 async function setDashboard() {
     let acc = getAccess();
     try {
-        let rooms = await getHueRooms(acc);
-        let lights = await getHueLights(acc);
-        let scenes = await getHueScenes(acc);
+        let hueData = {
+            rooms: await getHueRooms(acc),
+            lights: await getHueLights(acc),
+            scenes: await getHueScenes(acc),
+        }
         const domContainer = document.getElementById("mainSite");
         const root = ReactDOM.createRoot(domContainer);
-        root.render(<Dashboard acc={acc} settings={getSettings()}/>);
+        root.render(<ControllerSite hueData={hueData} acc={acc} settings={getSettings()}/>);
     } catch(err) {
         console.error(err);
         return err;
