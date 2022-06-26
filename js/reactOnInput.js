@@ -20,11 +20,6 @@ function tempSlider_change(lightId){
   new actions().sliderChange(lightId, obj);
 }
 
-function setRoomState_click(id, isChecked) {
-  //let getBri = document.getElementById("roomSlider"+id).value;
-
-  new actions().changeRoomState(id, isChecked, 255); // Refresh html
-}
   
 function selectRoom_click(obj, roomId) {
   let settingsObj = JSON.parse(localStorage.getItem('siteSettings'));

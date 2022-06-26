@@ -85,7 +85,7 @@ class ControllerSite extends React.Component {
             onEffects={(i)=>this.onEffects(i)}
             onShowUnreachable={(i)=>this.onShowUnreachable(i)}
           />
-          <Dashboard hueData={this.props.hueData}/>
+          <Dashboard hueData={this.props.hueData} acc={this.props.acc}/>
           <footer className="text-white bottom-text">
             <p className="text-center">&copy;  {new Date().getFullYear()} Jakob Frederik Lykke <a href="https://github.com/JakobJFL" className="link-white" target="_blank">Github
               </a> - 
@@ -173,8 +173,8 @@ class SettingsModal extends React.Component {
 
 function ToggleSwitch(props) {
   return (
-    <label className="switch">
-      <input type="checkbox" onInput={e => props.onChange(e)} defaultChecked={props.isToggled} />
+    <label className="switch swRight">
+      <input type="checkbox" checked={props.isToggled} onChange={e => props.onChange(e)}  />
       <span className="slider"></span>
     </label>
   );

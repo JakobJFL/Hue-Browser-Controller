@@ -2,7 +2,28 @@ class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      rooms: this.props.hueData.rooms,
+      lights: this.props.hueData.lights,
+      scenes: this.props.hueData.scenes,
+      selectedRoom: this.props.hueData.rooms[0].key,
     }
+  }
+
+  async reloadRooms() {
+    try {
+      this.setState({
+        rooms: await getHueRooms(this.props.acc),
+      });
+    }
+    catch (err) {
+      console.error(err);
+    }
+  }
+
+  roomChange(k) {
+    this.setState({
+      selectedRoom: k,
+    });
   }
 
   render() {
@@ -17,8 +38,9 @@ class Dashboard extends React.Component {
               </div>
               <div id="roomSelecters">
                 {
-                  this.props.hueData.rooms.map((v,i) => { 
-                    return <RoomSelecter key={i} roomData={v}/>
+                  this.state.rooms.map((v,i) => { 
+                    let isSelected = i==this.state.selectedRoom;
+                    return <RoomSelecter key={i} data={v} reload={()=>this.reloadRooms()} roomChange={(k)=>this.roomChange(k)} selected={isSelected}/>
                   })
                 }
               </div>
@@ -48,27 +70,68 @@ class Dashboard extends React.Component {
 class RoomSelecter extends React.Component {
   constructor(props) {
     super(props);
-    let roomData = this.props.roomData;
-    console.log(roomData);
     this.state = {
-      on: roomData.on,
+      bri: this.props.data.bri,
     }
   }
 
   onSwitch(e) {
+    new actions().changeRoomState(this.props.data.id, e, this.props.data.bri); 
+    this.props.reload();
     this.setState({
       on: e,
-    })
-    setRoomState_click(this.props.roomData.id, e);
+    });
+  }
+
+  onBri(e) {
+    this.setState({
+      bri: e,
+    });
+  }
+  updateRoom() {
+    new actions().changeRoomState(this.props.data.id, this.props.data.on, this.state.bri);
+    this.props.reload();
+  }
+
+  getGradient() {
+    let colorConv = new ColorConverter();
+    if (!this.props.data.on) {
+      return "";
+    }
+    let colorsGradient = "linear-gradient(to right, rgb(255, 233, 191), rgb(255, 233, 0))";
+    
+    /*
+    let gradientFillpercent = 0;
+      let gradientPercentToAdd = Math.floor(100/lights.length);
+      if (lights.length > maxLightsInGradient) 
+        gradientPercentToAdd = Math.floor(100/maxLightsInGradient);
+      for (const [index, light] of lights.entries()) {
+        if (index <= maxLightsInGradient) {
+          if (light.xy) 
+            colorsGradient += " rgb("+colorConv.xyBriToRgb(light.xy[0], light.xy[1], 255)+") "+gradientFillpercent+"%";
+          else if (light.ct) 
+            colorsGradient += " rgb("+colorConv.colorTempToRGB(1000000/(light.ct-200))+") "+gradientFillpercent+"%";
+          else
+            colorsGradient += "rgb(255, 233, 191) "+gradientFillpercent+"%";
+          gradientFillpercent += gradientPercentToAdd;
+          if (index !== lights.length-1 && index !== maxLightsInGradient) 
+            colorsGradient += ",";
+        } 
+      }
+      */
+    return colorsGradient;
   }
 
   render() {
   return (
     <React.Fragment>
-      <div className="roomSelecter my-3 btn roomSelecter my-2">
-        <button className="btn roomBtn" >test</button>
-          <ToggleSwitch onChange={e=>this.onSwitch(e.target.checked)} isToggled={this.state.on}/>
-          <input type="range" min="0" max="254" className="sliderBar"/>
+      <div className={"roomSelecter my-3 btn roomSelecter my-2 "+(this.props.selected ? "selected" : "")} style={{background: this.getGradient()}}>
+        <button className="btn roomBtn" onClick={()=>this.props.roomChange(this.props.data.key)}>{this.props.data.name}</button>
+          <ToggleSwitch onChange={e=>this.onSwitch(e.target.checked)} isToggled={this.props.data.on}/>
+          {this.props.data.on ? 
+              <input className="sliderBar" type="range" min="0" max="254" value={this.props.data.bri} onChange={e=>this.onBri(e.target.value)} onClick={()=>this.updateRoom()}/>
+            : ""
+          }
       </div>
     </React.Fragment>
     );
