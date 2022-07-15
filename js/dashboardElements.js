@@ -2,17 +2,22 @@ class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rooms: this.props.hueData.rooms,
-      lights: this.props.hueData.lights,
-      scenes: this.props.hueData.scenes,
       selectedRoom: this.props.hueData.rooms[0].key,
+      rooms: this.props.hueData.rooms,
+      lights: this.filterLights(this.props.hueData.lights, this.props.hueData.rooms[0].key),
+      scenes: this.props.hueData.scenes,
     }
   }
 
-  async reloadRooms() {
+  filterLights(lights, selectedRoom) {
+    return lights.filter(r=> this.props.hueData.rooms[selectedRoom].lightsInRoom.includes(r.id));
+  }
+
+  async reload() {
     try {
       this.setState({
         rooms: await getHueRooms(this.props.acc),
+        lights: this.filterLights(await getHueLights(this.props.acc), this.state.selectedRoom),
       });
     }
     catch (err) {
@@ -24,6 +29,7 @@ class Dashboard extends React.Component {
     this.setState({
       selectedRoom: k,
     });
+    this.reload();
   }
 
   render() {
@@ -40,7 +46,7 @@ class Dashboard extends React.Component {
                 {
                   this.state.rooms.map((v,i) => { 
                     let isSelected = i==this.state.selectedRoom;
-                    return <RoomSelecter key={i} data={v} reload={()=>this.reloadRooms()} roomChange={(k)=>this.roomChange(k)} selected={isSelected}/>
+                    return <RoomSelecter key={i} data={v} reload={()=>this.reload()} roomChange={(k)=>this.roomChange(k)} selected={isSelected}/>
                   })
                 }
               </div>
@@ -49,8 +55,12 @@ class Dashboard extends React.Component {
           <div className="col-md-8">
             <div className="row test row-cols-1 m-0">
               <div className="p-3 mt-2 container-half text-white bg-dark shadow-cos rounded-15 d-flex align-content-start flex-wrap" id="lightSelecters">
-                <h1 className="display-8 my-2 w-100 ">Lights</h1>
-
+                <h1 className="display-8 my-2 w-100 ">Lights</h1>                
+                {
+                  this.state.lights.map((v,i) => { 
+                    return <LightSelecter key={i} data={v} />
+                  })
+                }
               </div>
               <div className="p-4 container-half mt-2 text-white bg-dark shadow-cos rounded-15" id="sceneSelecters">
                 <div className="d-flex w-100">          
@@ -67,6 +77,23 @@ class Dashboard extends React.Component {
 }
 
 
+class LightSelecter extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <React.Fragment>
+        <div className="lightSelecter my-2" > 
+        <button type="button" className={"btn nowrapTxt "+ (!this.props.data.on ? "text-hover-white" : "")}>{this.props.data.name}</button>
+          pickersCollapse
+        </div>
+      </React.Fragment>
+      )
+    }
+}
+
+
 class RoomSelecter extends React.Component {
   constructor(props) {
     super(props);
@@ -77,10 +104,10 @@ class RoomSelecter extends React.Component {
 
   onSwitch(e) {
     new actions().changeRoomState(this.props.data.id, e, this.props.data.bri); 
-    this.props.reload();
     this.setState({
       on: e,
     });
+    this.props.reload();
   }
 
   onBri(e) {
@@ -88,6 +115,7 @@ class RoomSelecter extends React.Component {
       bri: e,
     });
   }
+
   updateRoom() {
     new actions().changeRoomState(this.props.data.id, this.props.data.on, this.state.bri);
     this.props.reload();
@@ -125,7 +153,7 @@ class RoomSelecter extends React.Component {
   render() {
   return (
     <React.Fragment>
-      <div className={"roomSelecter my-3 btn roomSelecter my-2 "+(this.props.selected ? "selected" : "")} style={{background: this.getGradient()}}>
+      <div className={"roomSelecter my-3 "+(this.props.selected ? "selected" : "")} style={{background: this.getGradient()}}>
         <button className="btn roomBtn" onClick={()=>this.props.roomChange(this.props.data.key)}>{this.props.data.name}</button>
           <ToggleSwitch onChange={e=>this.onSwitch(e.target.checked)} isToggled={this.props.data.on}/>
           {this.props.data.on ? 
@@ -134,7 +162,7 @@ class RoomSelecter extends React.Component {
           }
       </div>
     </React.Fragment>
-    );
+    )
   }
 }
 
