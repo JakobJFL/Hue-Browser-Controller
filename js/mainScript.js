@@ -4,7 +4,7 @@ let selectedRoomID = -1;
 let testingEnvironment = false;
 
 const allowedGroups = ["Room", "Zone"];
-const allowedLights = ["Extended color light", "Color temperature light", "Dimmable light", "On/Off plug-in unit"];
+const allowedLights = ["Extended color light", "Color light", "Color temperature light", "Dimmable light", "On/Off plug-in unit"];
 const allowedScenes = ["GroupScene"];
 
 function logOut(){
