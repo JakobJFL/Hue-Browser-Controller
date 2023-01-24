@@ -88,7 +88,7 @@ class DashboardPage {
                 <h3 class="fs-5 text-muted">Saved hue login details</h3>
                 <table class="table">
                   <tbody>
-                    <tr><th class="text-muted" scope="row">IP Addres:</th><td>${acc.ip}</td></tr>
+                    <tr><th class="text-muted" scope="row">IP Address:</th><td>${acc.ip}</td></tr>
                     <tr><th class="text-muted" scope="row">Access token:</th><td>${acc.token}</td> </tr>
                   </tbody>
                 </table>
