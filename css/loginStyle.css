@@ -9,7 +9,7 @@
     background-color: #f5f5ff;
     color: #5753b9;
     font-size: 14pt;
-	border-radius: 0px 0px 0px 18px; /*TL TR BR BL*/
+    border-radius: 0px 0px 0px 18px; /*TL TR BR BL*/
 }
 
 #downloadBtn:hover {

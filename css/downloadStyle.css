@@ -99,3 +99,12 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #727080; 
 }
+
+.cookie-btn {
+    position: fixed;
+    bottom: 0;
+    color: #dbdbdb;
+    background-color: #8482b8;
+    font-size: 9pt;
+    border-radius: 0px 18px 0px 0px; /*TL TR BR BL*/
+}

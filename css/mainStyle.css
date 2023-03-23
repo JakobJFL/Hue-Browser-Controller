@@ -245,3 +245,11 @@ div {
 .selected {
     box-shadow: 0 0 0 0.35rem #5a44d98f;
 }
+
+.cookie-btn {
+    position: fixed;
+    bottom: 0;
+    color: #dbdbdb;
+    font-size: 9pt;
+    border-radius: 0px 18px 0px 0px; /*TL TR BR BL*/
+}
