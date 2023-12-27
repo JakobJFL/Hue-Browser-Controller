@@ -21,6 +21,8 @@ class DashboardPage {
     if (settingsObj.effects) effects = "checked";
     if (settingsObj.showUnreachable) showUnreachableC = "checked";
 
+    const connectedLink = `${document.location.protocol}//${document.location.host}${document.location.pathname}?token=${acc.token}&ip=${acc.ip}`;
+
     let header = `<div class="container pt-4">
       <header class="pb-3 mb-4">
         <div class="top-bar">
@@ -90,6 +92,7 @@ class DashboardPage {
                   <tbody>
                     <tr><th class="text-muted" scope="row">IP Address:</th><td>${acc.ip}</td></tr>
                     <tr><th class="text-muted" scope="row">Access token:</th><td>${acc.token}</td> </tr>
+                    <tr><th class="text-muted" scope="row">Connected Link:</th><td><a style="color: #474747 !important;" href="${connectedLink}">${connectedLink}</a></td> </tr>
                   </tbody>
                 </table>
                 <h3 class="fs-5 text-muted" >Remove saved details</h3>
