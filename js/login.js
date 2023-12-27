@@ -184,6 +184,8 @@ function setDashboard() {
     let acc = getAccess();
     getDashboard(acc).then(dashboard => {
         document.getElementById("mainSite").innerHTML = dashboard.getHtml(acc);
+        const qrcodeElt = document.getElementById("qrcode");
+        new QRCode(qrcodeElt, qrcodeElt.title);
         let storage = localStorage.getItem('siteSettings');
         if (storage) 
             changeTheme(JSON.parse(storage).theme);
