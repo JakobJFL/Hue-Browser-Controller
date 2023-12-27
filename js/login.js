@@ -5,7 +5,22 @@ document.getElementById("manuallyIpBtn").addEventListener("click", manuallyIpNew
 let interval;
 const refreshTime = 1500;
 const postJsonObj = {devicetype: "Hue-Browser-Controller"};
-checkLocalStorage();
+checkQueryArgs().then(checkLocalStorage);
+
+function checkQueryArgs() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token")
+    const ip = params.get("ip")
+    if (token && ip) {
+        const acc = {token,ip};
+        return connectionGood(acc).then(() => {
+            localStorage.setItem('hueAcc', JSON.stringify(acc));
+            window.location.search = "";
+        })
+    } else {
+        return Promise.resolve();
+    }
+}
 
 function checkLocalStorage() { 
     let acc;
