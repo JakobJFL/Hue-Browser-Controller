@@ -15,7 +15,8 @@ function checkQueryArgs() {
         const acc = {token,ip};
         return connectionGood(acc).then(() => {
             localStorage.setItem('hueAcc', JSON.stringify(acc));
-            window.location.search = "";
+            window.history.replaceState( {} , document.title, window.location.origin+window.location.pathname );
+            //window.location.search = "";
         })
     } else {
         return Promise.resolve();
