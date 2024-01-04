@@ -40,7 +40,7 @@ class DashboardPage {
           <div class="modal-dialog modal-lg">
             <div class="modal-content rounded-15">
               <div class="modal-header modal-header-15">
-                <h5 class="modal-title text-white" id="exampleModalLabel">More</h5>
+                <h5 class="modal-title text-white" id="exampleModalLabel">Settings</h5>
                 <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
