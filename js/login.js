@@ -51,7 +51,7 @@ async function makeNewConnection(event) {
             setupWithLinkButton(ip);
         } catch (err) {
             if (err == "TypeError: Failed to fetch")  
-                showNewConError("No connection - possible network error, check network connection"); 
+                showNewConError("Automatic Hue discovery is no longer available. Please enter the IP manually, which you will find in the Hue App."); 
             else if (err == "Error: Timeout")  
                 showNewConError("Timeout - got no response from the Hue bridge. Check your and the bridges network connection"); 
             else 
