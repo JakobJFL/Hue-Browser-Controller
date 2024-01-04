@@ -5,7 +5,22 @@ document.getElementById("manuallyIpBtn").addEventListener("click", manuallyIpNew
 let interval;
 const refreshTime = 1500;
 const postJsonObj = {devicetype: "Hue-Browser-Controller"};
-checkLocalStorage();
+checkQueryArgs().then(checkLocalStorage);
+
+function checkQueryArgs() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token")
+    const ip = params.get("ip")
+    if (token && ip) {
+        const acc = {token,ip};
+        return connectionGood(acc).then(() => {
+            localStorage.setItem('hueAcc', JSON.stringify(acc));
+            window.history.replaceState({}, document.title, window.location.origin+window.location.pathname);
+        })
+    } else {
+        return Promise.resolve();
+    }
+}
 
 function checkLocalStorage() { 
     let acc;
@@ -169,6 +184,8 @@ function setDashboard() {
     let acc = getAccess();
     getDashboard(acc).then(dashboard => {
         document.getElementById("mainSite").innerHTML = dashboard.getHtml(acc);
+        const qrcodeElt = document.getElementById("qrcode");
+        new QRCode(qrcodeElt, qrcodeElt.title);
         let storage = localStorage.getItem('siteSettings');
         if (storage) 
             changeTheme(JSON.parse(storage).theme);
