@@ -1,26 +1,78 @@
-<h1 align="center" >The Hue Browser Controller</h1>
+# Open Hue Controller
 
-## Introduction
-The Hue Browser Controller is a website that enables you to control your Philips Hue lighting right from the website. It requires no install of software and runs locally. I other words it is a static website which means it can run independently of a web server and run just as it is stored. This means that if you have downloaded the site you can even control your lighting without a public internet connection. 
+A modern, minimalist browser controller for **Philips Hue** built with **Vue 3**, **TypeScript**, **Tailwind CSS**, and **Lucide Icons**, running 100% free (no credit card required) on **GitHub Pages** + a stateless **Cloudflare Worker**.
 
-**[Check out the Hue Browser Controller](https://jakobjfl.github.io/Hue-Browser-Controller/)**
+- **Zero Mixed-Content Warnings**: Uses the official Philips Hue Cloud OAuth 2.0 + CLIP v2 API over HTTPS (`api.meethue.com`) instead of local `http://` V1 requests.
+- **No Bridge IP or Physical Button Press**: Automatically pairs via virtual link-button on sign-in.
+- **Request-Optimized**: Single-request state hydration (`GET /clip/v2/resource`), instant optimistic UI updates, and debounced sliders (~20 requests/user/day).
+- **Instant Demo Mode**: Test and iterate on UI/UX locally with realistic mock rooms, zones, scenes, and lights before connecting credentials.
 
-## Features
+---
 
-### Creating a connection
-When you enter the website you will see the login page. Here you can use an existing Philips Hue API connection or create a new connection as seen on the figure below. The program will automatically find the IP of a Philips Hue Bridge connected to the same network as your computer. You can also enter the IP manually this can be found in the hue app. After this the button on the Hue Bridge have to be pressed and then the program will automatically create a connection and you can login. 
-<br><br>
-![The login page](https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/main/img/login2.jpg)
-### Controlling the lights
-When you are logged in you will be presented with the control page. Here the rooms, scenes and lights from the phone app will automatically be fetch and displayed as shown on the figure below. 
-<br><br>
-![The login page](https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/main/img/Control%20panel.jpg)
-You can select different rooms to see the lights and scenes in them, adjust the brightness and turn all lights off in every room. Scenes can be selected by cheating on them but can only be created in hue app. By clicking on the uppermost part of a light you turn the lights off/on. By clicking on the lowermost part you a menu opens where you can adjust the lights brightness and colour temperature or saturation and hue as shown below.
-<br><br>
-![The login page](https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/main/img/menu.jpg)
+## Quick Local Development
 
-## Contributing
-If you would like to contribute to this repository please feel free to do so. Please open an issue with the tag "enhancement" if you have any improvements or ideas for improvements. If you finde problems/issue with the website please also open an issue with the appropriate tag. You can also fork the repository can create a pull request if you wish to do so. Thank you in advance!
+```bash
+npm install
+npm run dev
+
+# Type-check & lint
+npm run typecheck
+npm run lint
+```
+
+Open `http://localhost:5173` and click **Try Demo Mode** to test all controls immediately, or configure `.env` (see below) to test live Philips Hue OAuth login.
+
+---
+
+## 5-Minute Live Setup (Philips Hue + Cloudflare Worker + GitHub Pages)
+
+### 1. Create a Free Philips Hue Remote API App
+1. Sign in at [https://developers.meethue.com/my-apps/](https://developers.meethue.com/my-apps/) and click **Add new App**.
+2. Fill in:
+   - **App name**: `Open Hue Controller`
+   - **Callback URL**: `https://jakobjfl.github.io/Hue-Browser-Controller/` *(for local testing, you can also register a dev app pointing to `http://localhost:5173/`)*
+3. Copy your **AppId**, **ClientId**, and **ClientSecret**.
+
+### 2. Deploy the Stateless Cloudflare Worker (`worker/`)
+The Worker (`worker/src/index.ts`) holds `HUE_CLIENT_SECRET` privately, exchanges/refreshes OAuth tokens, triggers virtual link-button pairing, and adds CORS headers for your frontend.
+
+```bash
+cd worker
+
+# Log in to your free Cloudflare account (no credit card required)
+npx wrangler login
+
+# Edit worker/wrangler.toml if your GitHub Pages URL differs from https://jakobjfl.github.io
+# Deploy the Worker
+npx wrangler deploy
+
+# Store your Hue credentials as encrypted Worker secrets
+npx wrangler secret put HUE_CLIENT_ID
+npx wrangler secret put HUE_CLIENT_SECRET
+```
+
+Copy the deployed Worker URL printed by Wrangler (e.g. `https://open-hue-controller-proxy.<your-subdomain>.workers.dev`).
+
+### 3. Configure Frontend Environment Variables
+
+**For Local Development (`.env`):**
+Copy `.env.example` to `.env` and fill in your public values:
+```ini
+VITE_HUE_CLIENT_ID=your_hue_client_id
+VITE_HUE_APP_ID=your_hue_app_id
+VITE_WORKER_URL=https://open-hue-controller-proxy.<your-subdomain>.workers.dev
+```
+
+**For GitHub Pages (`.github/workflows/deploy.yml`):**
+1. In your GitHub repository, go to **Settings → Pages** and set **Build and deployment → Source** to **GitHub Actions**.
+2. Go to **Settings → Secrets and variables → Actions → Variables** tab and add three **Repository variables**:
+   - `VITE_HUE_CLIENT_ID`
+   - `VITE_HUE_APP_ID`
+   - `VITE_WORKER_URL`
+3. Push to `deploy` (or `main`) — GitHub Actions will automatically build and publish `./dist` to GitHub Pages.
+
+---
 
 ## License
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+Distributed under the MIT License. See `LICENSE` for details.
+

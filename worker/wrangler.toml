@@ -1,0 +1,12 @@
+name = "open-hue-controller-proxy"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Comma-separated list of allowed browser origins (no trailing slash).
+# Include your GitHub Pages domain and local Vite dev server.
+ALLOWED_ORIGINS = "https://jakobjfl.github.io,http://localhost:5173,http://127.0.0.1:5173"
+
+# Set your Hue Developer credentials safely via Wrangler secrets (never commit secrets):
+#   npx wrangler secret put HUE_CLIENT_ID
+#   npx wrangler secret put HUE_CLIENT_SECRET

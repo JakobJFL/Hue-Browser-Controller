@@ -1,0 +1,382 @@
+import { computed, reactive, ref } from 'vue'
+import {
+  clearSession,
+  fetchAllResources,
+  handleOAuthCallbackIfPresent,
+  loadStoredSession,
+  recallScene,
+  startHueOAuth,
+  updateGroupedLight,
+  updateLight,
+} from '../services/hueApi'
+import { createDemoResources } from '../services/mockData'
+import type {
+  AuthMode,
+  ClipRawResource,
+  HueGroup,
+  HueGroupBase,
+  HueLight,
+  HueScene,
+  HueSettings,
+} from '../types/hue'
+import { normalizeClipResources } from '../utils/clipNormalizer'
+import { hexToXy } from '../utils/color'
+import { createKeyedDebounce } from '../utils/debounce'
+
+const SETTINGS_KEY = 'open_hue_settings_v2'
+
+function loadSettings(): HueSettings {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY)
+    return raw
+      ? { showUnreachable: false, ...(JSON.parse(raw) as Partial<HueSettings>) }
+      : { showUnreachable: false }
+  } catch {
+    return { showUnreachable: false }
+  }
+}
+
+function toErrorMessage(err: unknown, fallback: string): string {
+  return err instanceof Error && err.message ? err.message : fallback
+}
+
+const authMode = ref<AuthMode>('logged_out')
+const isLoading = ref(false)
+const isBootstrapping = ref(true)
+const errorMessage = ref('')
+const selectedGroupId = ref<string | null>(null)
+const activeSceneByGroup = reactive<Record<string, string | null>>({})
+const settings = reactive<HueSettings>(loadSettings())
+
+const lightsMap = reactive<Record<string, HueLight>>({})
+const groupsList = ref<HueGroupBase[]>([])
+const scenesList = ref<HueScene[]>([])
+const homeGroupedLightId = ref<string | null>(null)
+
+const sliderDebounce = createKeyedDebounce(250)
+const sceneSyncDebounce = createKeyedDebounce(850)
+
+function applyNormalized(rawItems: ClipRawResource[]): void {
+  const parsed = normalizeClipResources(rawItems)
+  for (const k of Object.keys(lightsMap)) delete lightsMap[k]
+  Object.assign(lightsMap, parsed.lights)
+  groupsList.value = parsed.groups
+  scenesList.value = parsed.scenes
+  homeGroupedLightId.value = parsed.homeGroupedLightId
+
+  for (const s of parsed.scenes) {
+    if (s.active) activeSceneByGroup[s.groupId] = s.id
+  }
+
+  if (!selectedGroupId.value || !parsed.groups.some((g) => g.id === selectedGroupId.value)) {
+    selectedGroupId.value = parsed.groups[0]?.id || null
+  }
+}
+
+export function useHue() {
+  const groups = computed<HueGroup[]>(() =>
+    groupsList.value.map((g) => {
+      const members = g.lightIds
+        .map((id) => lightsMap[id])
+        .filter((l): l is HueLight => Boolean(l))
+      const onLights = members.filter((l) => l.isOn)
+      const brightness = onLights.length
+        ? Math.round(onLights.reduce((s, l) => s + l.brightness, 0) / onLights.length)
+        : g.fallbackBrightness
+      return {
+        ...g,
+        isOn: onLights.length > 0,
+        onCount: onLights.length,
+        totalCount: members.length,
+        brightness,
+      }
+    })
+  )
+
+  const selectedGroup = computed<HueGroup | null>(
+    () => groups.value.find((g) => g.id === selectedGroupId.value) || groups.value[0] || null
+  )
+
+  const currentLights = computed<HueLight[]>(() => {
+    const g = selectedGroup.value
+    if (!g) return []
+    return g.lightIds
+      .map((id) => lightsMap[id])
+      .filter((l): l is HueLight => Boolean(l && (settings.showUnreachable || l.reachable)))
+  })
+
+  const currentScenes = computed<HueScene[]>(() => {
+    const g = selectedGroup.value
+    return g ? scenesList.value.filter((s) => s.groupId === g.id) : []
+  })
+
+  async function refreshResources(): Promise<void> {
+    errorMessage.value = ''
+    if (authMode.value === 'demo') {
+      applyNormalized(createDemoResources())
+      return
+    }
+    isLoading.value = true
+    try {
+      const res = await fetchAllResources()
+      applyNormalized(res.data || [])
+    } catch (err) {
+      errorMessage.value = toErrorMessage(err, 'Failed to load Hue resources.')
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function bootstrap(): Promise<void> {
+    isBootstrapping.value = true
+    errorMessage.value = ''
+    try {
+      const cbSession = await handleOAuthCallbackIfPresent()
+      if (cbSession || loadStoredSession()) {
+        authMode.value = 'authenticated'
+        await refreshResources()
+      } else {
+        authMode.value = 'logged_out'
+      }
+    } catch (err) {
+      errorMessage.value = toErrorMessage(err, 'Authentication failed.')
+      clearSession()
+      authMode.value = 'logged_out'
+    } finally {
+      isBootstrapping.value = false
+    }
+  }
+
+  function loginWithHue(): void {
+    errorMessage.value = ''
+    try {
+      authMode.value = 'authenticating'
+      startHueOAuth()
+    } catch (err) {
+      authMode.value = 'logged_out'
+      errorMessage.value = toErrorMessage(err, 'Could not start login.')
+    }
+  }
+
+  function startDemoMode(): void {
+    errorMessage.value = ''
+    authMode.value = 'demo'
+    applyNormalized(createDemoResources())
+  }
+
+  function logout(): void {
+    sliderDebounce.clearAll()
+    sceneSyncDebounce.clearAll()
+    clearSession()
+    authMode.value = 'logged_out'
+    groupsList.value = []
+    scenesList.value = []
+    selectedGroupId.value = null
+    errorMessage.value = ''
+  }
+
+  const selectGroup = (id: string): void => {
+    selectedGroupId.value = id
+  }
+
+  function setShowUnreachable(val: boolean): void {
+    settings.showUnreachable = Boolean(val)
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({ showUnreachable: settings.showUnreachable })
+    )
+  }
+
+  async function toggleGroup(group: HueGroup): Promise<void> {
+    const nextOn = !group.isOn
+    const prev = group.lightIds.map((id) => ({ id, isOn: Boolean(lightsMap[id]?.isOn) }))
+    for (const id of group.lightIds) {
+      const l = lightsMap[id]
+      if (l) l.isOn = nextOn
+    }
+    if (!nextOn) activeSceneByGroup[group.id] = null
+    if (authMode.value === 'demo' || !group.groupedLightId) return
+    try {
+      await updateGroupedLight(group.groupedLightId, { on: { on: nextOn } })
+    } catch (err) {
+      for (const s of prev) {
+        const l = lightsMap[s.id]
+        if (l) l.isOn = s.isOn
+      }
+      errorMessage.value = toErrorMessage(err, 'Could not update room state.')
+    }
+  }
+
+  function setGroupBrightness(group: HueGroup, val: number): void {
+    const bri = Math.max(1, Math.min(100, Math.round(Number(val))))
+    for (const id of group.lightIds) {
+      const l = lightsMap[id]
+      if (l && (l.isOn || !group.isOn)) {
+        l.isOn = true
+        if (l.supportsDimming) l.brightness = bri
+      }
+    }
+    if (authMode.value === 'demo' || !group.groupedLightId) return
+    const glId = group.groupedLightId
+    sliderDebounce.schedule(`grp-bri-${group.id}`, async () => {
+      try {
+        await updateGroupedLight(glId, { on: { on: true }, dimming: { brightness: bri } })
+      } catch (err) {
+        errorMessage.value = toErrorMessage(err, 'Could not adjust room brightness.')
+      }
+    })
+  }
+
+  async function turnAllOff(): Promise<void> {
+    const prev = Object.values(lightsMap).map((l) => ({ id: l.id, isOn: l.isOn }))
+    for (const l of Object.values(lightsMap)) l.isOn = false
+    for (const k of Object.keys(activeSceneByGroup)) activeSceneByGroup[k] = null
+    if (authMode.value === 'demo') return
+    try {
+      if (homeGroupedLightId.value) {
+        await updateGroupedLight(homeGroupedLightId.value, { on: { on: false } })
+      } else {
+        await Promise.all(
+          groupsList.value
+            .map((g) => g.groupedLightId)
+            .filter((id): id is string => Boolean(id))
+            .map((id) => updateGroupedLight(id, { on: { on: false } }))
+        )
+      }
+    } catch (err) {
+      for (const s of prev) {
+        const l = lightsMap[s.id]
+        if (l) l.isOn = s.isOn
+      }
+      errorMessage.value = toErrorMessage(err, 'Could not turn all lights off.')
+    }
+  }
+
+  async function toggleLight(lightId: string): Promise<void> {
+    const l = lightsMap[lightId]
+    if (!l) return
+    const prev = l.isOn
+    l.isOn = !prev
+    if (authMode.value === 'demo') return
+    try {
+      await updateLight(lightId, { on: { on: l.isOn } })
+    } catch (err) {
+      l.isOn = prev
+      errorMessage.value = toErrorMessage(err, `Could not toggle ${l.name}.`)
+    }
+  }
+
+  function setLightBrightness(lightId: string, val: number): void {
+    const l = lightsMap[lightId]
+    if (!l) return
+    const bri = Math.max(1, Math.min(100, Math.round(Number(val))))
+    l.isOn = true
+    l.brightness = bri
+    if (authMode.value === 'demo') return
+    sliderDebounce.schedule(`lt-bri-${lightId}`, async () => {
+      try {
+        await updateLight(lightId, { on: { on: true }, dimming: { brightness: bri } })
+      } catch (err) {
+        errorMessage.value = toErrorMessage(err, `Could not dim ${l.name}.`)
+      }
+    })
+  }
+
+  function setLightTemperature(lightId: string, mirekVal: number): void {
+    const l = lightsMap[lightId]
+    if (!l) return
+    const mirek = Math.max(l.mirekMin, Math.min(l.mirekMax, Math.round(Number(mirekVal))))
+    l.isOn = true
+    l.mirek = mirek
+    l.activeMode = 'ct'
+    if (authMode.value === 'demo') return
+    sliderDebounce.schedule(`lt-ct-${lightId}`, async () => {
+      try {
+        await updateLight(lightId, { on: { on: true }, color_temperature: { mirek } })
+      } catch (err) {
+        errorMessage.value = toErrorMessage(err, `Could not update temperature for ${l.name}.`)
+      }
+    })
+  }
+
+  function setLightColorHex(lightId: string, hex: string): void {
+    const l = lightsMap[lightId]
+    if (!l) return
+    const xy = hexToXy(hex, l.gamut || undefined)
+    l.isOn = true
+    l.xy = xy
+    l.activeMode = 'color'
+    if (authMode.value === 'demo') return
+    sliderDebounce.schedule(`lt-xy-${lightId}`, async () => {
+      try {
+        await updateLight(lightId, { on: { on: true }, color: { xy } })
+      } catch (err) {
+        errorMessage.value = toErrorMessage(err, `Could not update color for ${l.name}.`)
+      }
+    })
+  }
+
+  async function activateScene(scene: HueScene): Promise<void> {
+    activeSceneByGroup[scene.groupId] = scene.id
+    const g = groupsList.value.find((grp) => grp.id === scene.groupId)
+    if (g) {
+      for (const id of g.lightIds) {
+        const l = lightsMap[id]
+        if (!l) continue
+        l.isOn = true
+        if (scene.demoPreset) {
+          if (scene.demoPreset.brightness && l.supportsDimming) {
+            l.brightness = scene.demoPreset.brightness
+          }
+          if (scene.demoPreset.xy && l.supportsColor) {
+            l.xy = { ...scene.demoPreset.xy }
+            l.activeMode = 'color'
+          } else if (scene.demoPreset.mirek && l.supportsCt) {
+            l.mirek = Math.max(l.mirekMin, Math.min(l.mirekMax, scene.demoPreset.mirek))
+            l.activeMode = 'ct'
+          }
+        }
+      }
+    }
+    if (authMode.value === 'demo') return
+    try {
+      await recallScene(scene.id, 'active')
+      sceneSyncDebounce.schedule('scene-sync', () => {
+        void refreshResources().catch(() => {})
+      })
+    } catch (err) {
+      errorMessage.value = toErrorMessage(err, `Could not activate scene "${scene.name}".`)
+    }
+  }
+
+  return {
+    authMode,
+    isLoading,
+    isBootstrapping,
+    errorMessage,
+    settings,
+    groups,
+    selectedGroup,
+    selectedGroupId,
+    currentLights,
+    currentScenes,
+    activeSceneByGroup,
+    bootstrap,
+    refreshResources,
+    loginWithHue,
+    startDemoMode,
+    logout,
+    selectGroup,
+    setShowUnreachable,
+    toggleGroup,
+    setGroupBrightness,
+    turnAllOff,
+    toggleLight,
+    setLightBrightness,
+    setLightTemperature,
+    setLightColorHex,
+    activateScene,
+  }
+}
+
