@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { AlertCircle, Lightbulb, Loader2, Power, X } from '@lucide/vue'
+import { onMounted, ref, watch } from 'vue'
+import { AlertCircle, Lightbulb, Loader2, X } from '@lucide/vue'
 import { useHue } from './composables/useHue'
+import AppFooter from './components/AppFooter.vue'
 import LoginView from './components/LoginView.vue'
 import TopBar from './components/TopBar.vue'
 import RoomList from './components/RoomList.vue'
 import SceneGrid from './components/SceneGrid.vue'
 import LightCard from './components/LightCard.vue'
+import SettingsModal from './components/SettingsModal.vue'
 
 const {
   authMode,
@@ -27,6 +29,7 @@ const {
   logout,
   selectGroup,
   setShowUnreachable,
+  setShowColorTempOnColorLights,
   toggleGroup,
   setGroupBrightness,
   turnAllOff,
@@ -36,6 +39,17 @@ const {
   setLightColorHex,
   activateScene,
 } = useHue()
+
+const settingsModalOpen = ref(false)
+const expandedLightId = ref<string | null>(null)
+
+function handleToggleExpand(lightId: string): void {
+  expandedLightId.value = expandedLightId.value === lightId ? null : lightId
+}
+
+watch([selectedGroupId, authMode], () => {
+  expandedLightId.value = null
+})
 
 onMounted(() => {
   void bootstrap()
@@ -58,34 +72,45 @@ onMounted(() => {
     @demo="startDemoMode"
   />
 
-  <!-- Main Controller View -->
-  <div v-else class="min-h-screen flex flex-col">
+  <!-- Main Controller View (solid dark-blue canvas matching LoginView palette) -->
+  <div v-else class="min-h-screen flex flex-col bg-[#03051a] text-slate-100">
     <TopBar
       :is-demo="authMode === 'demo'"
       :is-loading="isLoading"
-      :show-unreachable="settings.showUnreachable"
       @refresh="refreshResources"
-      @turn-all-off="turnAllOff"
-      @toggle-unreachable="setShowUnreachable"
+      @open-settings="settingsModalOpen = true"
       @logout="logout"
     />
 
-    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+    <SettingsModal
+      :open="settingsModalOpen"
+      :show-unreachable="settings.showUnreachable"
+      :show-color-temp-on-color-lights="settings.showColorTempOnColorLights"
+      @close="settingsModalOpen = false"
+      @update:show-unreachable="setShowUnreachable"
+      @update:show-color-temp-on-color-lights="setShowColorTempOnColorLights"
+    />
+
+    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
       <!-- Dismissible Error Banner -->
       <div
         v-if="errorMessage"
-        class="mb-6 flex items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-200"
+        class="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-secondary-400/35 bg-secondary-950/55 px-4 py-3 text-xs text-secondary-100"
       >
-        <div class="flex items-center gap-2">
-          <AlertCircle class="h-4 w-4 shrink-0 text-red-400" />
+        <div class="flex items-center gap-2.5">
+          <AlertCircle class="h-4 w-4 shrink-0 text-secondary-400" />
           <span>{{ errorMessage }}</span>
         </div>
-        <button type="button" class="text-red-300 hover:text-white cursor-pointer" @click="errorMessage = ''">
+        <button
+          type="button"
+          class="text-secondary-300 transition hover:text-white cursor-pointer"
+          @click="errorMessage = ''"
+        >
           <X class="h-4 w-4" />
         </button>
       </div>
 
-      <div v-if="groups.length === 0 && !isLoading" class="py-20 text-center text-sm text-zinc-500">
+      <div v-if="groups.length === 0 && !isLoading" class="py-20 text-center text-sm text-slate-400">
         No rooms or lights found on this Hue Bridge.
       </div>
 
@@ -98,39 +123,26 @@ onMounted(() => {
             @select="selectGroup"
             @toggle="toggleGroup"
             @brightness="setGroupBrightness"
+            @turn-all-off="turnAllOff"
           />
         </div>
 
         <!-- Right Content: Active Room Controls, Scenes & Lights -->
-        <div v-if="selectedGroup" class="md:col-span-8 lg:col-span-8 space-y-7">
+        <div v-if="selectedGroup" class="md:col-span-8 lg:col-span-8 space-y-8">
           <!-- Selected Group Header -->
-          <div class="flex items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
+          <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
             <div>
-              <h2 class="text-xl font-semibold tracking-tight text-zinc-100">
+              <h2 class="text-2xl font-light tracking-tight text-white">
                 {{ selectedGroup.name }}
               </h2>
-              <p class="text-xs text-zinc-400 mt-0.5">
+              <p class="text-xs text-slate-300/75 mt-1">
                 {{
                   selectedGroup.isOn
-                    ? `${selectedGroup.onCount} of ${selectedGroup.totalCount} lights active`
+                    ? `${selectedGroup.onCount} of ${selectedGroup.totalCount} lights active · ${selectedGroup.brightness}%`
                     : 'All lights off'
                 }}
               </p>
             </div>
-
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-medium transition cursor-pointer"
-              :class="
-                selectedGroup.isOn
-                  ? 'border-zinc-200 bg-zinc-100 text-zinc-950 hover:bg-white'
-                  : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700 hover:text-zinc-100'
-              "
-              @click="toggleGroup(selectedGroup)"
-            >
-              <Power class="h-3.5 w-3.5" />
-              <span>{{ selectedGroup.isOn ? 'Turn Off' : 'Turn On' }}</span>
-            </button>
           </div>
 
           <!-- Scenes -->
@@ -141,22 +153,28 @@ onMounted(() => {
           />
 
           <!-- Lights -->
-          <section class="space-y-2.5">
-            <div class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-500">
-              <Lightbulb class="h-3.5 w-3.5" />
+          <section class="space-y-3">
+            <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-300/85">
+              <Lightbulb class="h-3.5 w-3.5 text-primary-400" />
               <span>Lights ({{ currentLights.length }})</span>
             </div>
 
-            <div v-if="currentLights.length === 0" class="rounded-xl border border-zinc-800/60 p-6 text-center text-xs text-zinc-500">
+            <div
+              v-if="currentLights.length === 0"
+              class="rounded-2xl border border-white/10 bg-[#060a2e]/50 p-6 text-center text-xs text-slate-400"
+            >
               No reachable lights in this group. Enable "Show unreachable lights" in Settings to view offline bulbs.
             </div>
 
-            <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div v-else class="grid grid-cols-1 items-start gap-3.5 sm:grid-cols-2">
               <LightCard
                 v-for="light in currentLights"
                 :key="light.id"
                 :light="light"
+                :expanded="expandedLightId === light.id"
+                :show-color-temp-on-color-lights="settings.showColorTempOnColorLights"
                 @toggle="toggleLight"
+                @toggle-expand="handleToggleExpand"
                 @brightness="setLightBrightness"
                 @temperature="setLightTemperature"
                 @color="setLightColorHex"
@@ -166,5 +184,7 @@ onMounted(() => {
         </div>
       </div>
     </main>
+
+    <AppFooter />
   </div>
 </template>

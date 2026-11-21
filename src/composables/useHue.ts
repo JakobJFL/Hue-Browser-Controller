@@ -25,14 +25,19 @@ import { createKeyedDebounce } from '../utils/debounce'
 
 const SETTINGS_KEY = 'open_hue_settings_v2'
 
+const DEFAULT_SETTINGS: HueSettings = {
+  showUnreachable: false,
+  showColorTempOnColorLights: false,
+}
+
 function loadSettings(): HueSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY)
     return raw
-      ? { showUnreachable: false, ...(JSON.parse(raw) as Partial<HueSettings>) }
-      : { showUnreachable: false }
+      ? { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<HueSettings>) }
+      : { ...DEFAULT_SETTINGS }
   } catch {
-    return { showUnreachable: false }
+    return { ...DEFAULT_SETTINGS }
   }
 }
 
@@ -55,6 +60,7 @@ const homeGroupedLightId = ref<string | null>(null)
 
 const sliderDebounce = createKeyedDebounce(250)
 const sceneSyncDebounce = createKeyedDebounce(850)
+let refreshGeneration = 0
 
 function applyNormalized(rawItems: ClipRawResource[]): void {
   const parsed = normalizeClipResources(rawItems)
@@ -79,7 +85,7 @@ export function useHue() {
       const members = g.lightIds
         .map((id) => lightsMap[id])
         .filter((l): l is HueLight => Boolean(l))
-      const onLights = members.filter((l) => l.isOn)
+      const onLights = members.filter((l) => l.reachable && l.isOn)
       const brightness = onLights.length
         ? Math.round(onLights.reduce((s, l) => s + l.brightness, 0) / onLights.length)
         : g.fallbackBrightness
@@ -116,15 +122,21 @@ export function useHue() {
       applyNormalized(createDemoResources())
       return
     }
+    const gen = ++refreshGeneration
     isLoading.value = true
     try {
       const res = await fetchAllResources()
+      if (gen !== refreshGeneration || authMode.value !== 'authenticated') return
       applyNormalized(res.data || [])
     } catch (err) {
-      errorMessage.value = toErrorMessage(err, 'Failed to load Hue resources.')
+      if (gen === refreshGeneration) {
+        errorMessage.value = toErrorMessage(err, 'Failed to load Hue resources.')
+      }
       throw err
     } finally {
-      isLoading.value = false
+      if (gen === refreshGeneration) {
+        isLoading.value = false
+      }
     }
   }
 
@@ -160,18 +172,25 @@ export function useHue() {
   }
 
   function startDemoMode(): void {
+    refreshGeneration++
+    isLoading.value = false
     errorMessage.value = ''
     authMode.value = 'demo'
     applyNormalized(createDemoResources())
   }
 
   function logout(): void {
+    refreshGeneration++
+    isLoading.value = false
     sliderDebounce.clearAll()
     sceneSyncDebounce.clearAll()
     clearSession()
     authMode.value = 'logged_out'
+    for (const k of Object.keys(lightsMap)) delete lightsMap[k]
+    for (const k of Object.keys(activeSceneByGroup)) delete activeSceneByGroup[k]
     groupsList.value = []
     scenesList.value = []
+    homeGroupedLightId.value = null
     selectedGroupId.value = null
     errorMessage.value = ''
   }
@@ -180,12 +199,28 @@ export function useHue() {
     selectedGroupId.value = id
   }
 
+  function persistSettings(): void {
+    try {
+      localStorage.setItem(
+        SETTINGS_KEY,
+        JSON.stringify({
+          showUnreachable: settings.showUnreachable,
+          showColorTempOnColorLights: settings.showColorTempOnColorLights,
+        })
+      )
+    } catch {
+      // Ignore storage quota/privacy errors
+    }
+  }
+
   function setShowUnreachable(val: boolean): void {
     settings.showUnreachable = Boolean(val)
-    localStorage.setItem(
-      SETTINGS_KEY,
-      JSON.stringify({ showUnreachable: settings.showUnreachable })
-    )
+    persistSettings()
+  }
+
+  function setShowColorTempOnColorLights(val: boolean): void {
+    settings.showColorTempOnColorLights = Boolean(val)
+    persistSettings()
   }
 
   async function toggleGroup(group: HueGroup): Promise<void> {
@@ -193,7 +228,7 @@ export function useHue() {
     const prev = group.lightIds.map((id) => ({ id, isOn: Boolean(lightsMap[id]?.isOn) }))
     for (const id of group.lightIds) {
       const l = lightsMap[id]
-      if (l) l.isOn = nextOn
+      if (l && (l.reachable || !nextOn)) l.isOn = nextOn
     }
     if (!nextOn) activeSceneByGroup[group.id] = null
     if (authMode.value === 'demo' || !group.groupedLightId) return
@@ -212,7 +247,7 @@ export function useHue() {
     const bri = Math.max(1, Math.min(100, Math.round(Number(val))))
     for (const id of group.lightIds) {
       const l = lightsMap[id]
-      if (l && (l.isOn || !group.isOn)) {
+      if (l && l.reachable && (l.isOn || !group.isOn)) {
         l.isOn = true
         if (l.supportsDimming) l.brightness = bri
       }
@@ -255,7 +290,7 @@ export function useHue() {
 
   async function toggleLight(lightId: string): Promise<void> {
     const l = lightsMap[lightId]
-    if (!l) return
+    if (!l || !l.reachable) return
     const prev = l.isOn
     l.isOn = !prev
     if (authMode.value === 'demo') return
@@ -269,7 +304,7 @@ export function useHue() {
 
   function setLightBrightness(lightId: string, val: number): void {
     const l = lightsMap[lightId]
-    if (!l) return
+    if (!l || !l.reachable) return
     const bri = Math.max(1, Math.min(100, Math.round(Number(val))))
     l.isOn = true
     l.brightness = bri
@@ -285,7 +320,7 @@ export function useHue() {
 
   function setLightTemperature(lightId: string, mirekVal: number): void {
     const l = lightsMap[lightId]
-    if (!l) return
+    if (!l || !l.reachable) return
     const mirek = Math.max(l.mirekMin, Math.min(l.mirekMax, Math.round(Number(mirekVal))))
     l.isOn = true
     l.mirek = mirek
@@ -302,7 +337,7 @@ export function useHue() {
 
   function setLightColorHex(lightId: string, hex: string): void {
     const l = lightsMap[lightId]
-    if (!l) return
+    if (!l || !l.reachable) return
     const xy = hexToXy(hex, l.gamut || undefined)
     l.isOn = true
     l.xy = xy
@@ -323,7 +358,7 @@ export function useHue() {
     if (g) {
       for (const id of g.lightIds) {
         const l = lightsMap[id]
-        if (!l) continue
+        if (!l || !l.reachable) continue
         l.isOn = true
         if (scene.demoPreset) {
           if (scene.demoPreset.brightness && l.supportsDimming) {
@@ -369,6 +404,7 @@ export function useHue() {
     logout,
     selectGroup,
     setShowUnreachable,
+    setShowColorTempOnColorLights,
     toggleGroup,
     setGroupBrightness,
     turnAllOff,

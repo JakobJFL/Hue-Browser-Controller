@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Home, Layers, Power } from '@lucide/vue'
+import { computed, type Component } from 'vue'
+import { Home, Layers, Power, PowerOff } from '@lucide/vue'
 import type { HueGroup } from '../types/hue'
 
 const props = withDefaults(
@@ -17,10 +17,31 @@ const emit = defineEmits<{
   select: [groupId: string]
   toggle: [group: HueGroup]
   brightness: [group: HueGroup, value: number]
+  'turn-all-off': []
 }>()
 
-const rooms = computed(() => props.groups.filter((g) => g.type === 'room'))
-const zones = computed(() => props.groups.filter((g) => g.type === 'zone'))
+interface GroupSection {
+  key: 'room' | 'zone'
+  label: string
+  icon: Component
+  items: HueGroup[]
+  showAllOff: boolean
+}
+
+const sections = computed<GroupSection[]>(() => {
+  const rooms = props.groups.filter((g) => g.type === 'room')
+  const zones = props.groups.filter((g) => g.type === 'zone')
+  return [
+    { key: 'room' as const, label: 'Rooms', icon: Home, items: rooms, showAllOff: true },
+    {
+      key: 'zone' as const,
+      label: 'Zones',
+      icon: Layers,
+      items: zones,
+      showAllOff: rooms.length === 0,
+    },
+  ].filter((section) => section.items.length > 0)
+})
 
 function onGroupBrightnessInput(group: HueGroup, event: Event): void {
   const target = event.target as HTMLInputElement
@@ -29,121 +50,71 @@ function onGroupBrightnessInput(group: HueGroup, event: Event): void {
 </script>
 
 <template>
-  <aside class="space-y-6">
-    <div v-if="rooms.length">
-      <div class="flex items-center gap-1.5 px-1 mb-2.5 text-xs font-medium uppercase tracking-wider text-zinc-500">
-        <Home class="h-3.5 w-3.5" />
-        <span>Rooms</span>
-      </div>
-
-      <div class="space-y-2">
-        <div
-          v-for="room in rooms"
-          :key="room.id"
-          class="rounded-xl border p-3 transition cursor-pointer"
-          :class="
-            selectedGroupId === room.id
-              ? 'border-zinc-600 bg-zinc-900 shadow-sm'
-              : 'border-zinc-800/80 bg-zinc-900/40 hover:border-zinc-700/80 hover:bg-zinc-900/70'
-          "
-          @click="emit('select', room.id)"
-        >
-          <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <p class="truncate text-sm font-medium text-zinc-100">{{ room.name }}</p>
-              <p class="text-xs text-zinc-500">
-                {{ room.isOn ? `${room.onCount}/${room.totalCount} on · ${room.brightness}%` : 'Off' }}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              :aria-label="`Toggle ${room.name}`"
-              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition cursor-pointer"
-              :class="
-                room.isOn
-                  ? 'border-amber-400/40 bg-amber-400/15 text-amber-300 hover:bg-amber-400/25'
-                  : 'border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
-              "
-              @click.stop="emit('toggle', room)"
-            >
-              <Power class="h-4 w-4" />
-            </button>
-          </div>
-
-          <div v-if="room.isOn" class="mt-3" @click.stop>
-            <input
-              type="range"
-              min="1"
-              max="100"
-              :value="room.brightness"
-              class="w-full"
-              :style="{
-                background: `linear-gradient(to right, #fbbf24 ${room.brightness}%, #27272a ${room.brightness}%)`,
-                borderRadius: '9999px',
-                height: '6px',
-              }"
-              @input="onGroupBrightnessInput(room, $event)"
-            />
-          </div>
+  <aside class="space-y-7">
+    <div v-for="section in sections" :key="section.key">
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-300/85">
+          <component :is="section.icon" class="h-3.5 w-3.5 text-primary-400" />
+          <span>{{ section.label }}</span>
         </div>
-      </div>
-    </div>
 
-    <div v-if="zones.length">
-      <div class="flex items-center gap-1.5 px-1 mb-2.5 text-xs font-medium uppercase tracking-wider text-zinc-500">
-        <Layers class="h-3.5 w-3.5" />
-        <span>Zones</span>
+        <button
+          v-if="section.showAllOff"
+          type="button"
+          title="Turn all lights off"
+          class="inline-flex items-center gap-1.5 rounded-xl border border-white/12 bg-white/4 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-secondary-400/40 hover:bg-secondary-500/12 hover:text-white cursor-pointer"
+          @click="emit('turn-all-off')"
+        >
+          <PowerOff class="h-3.5 w-3.5 text-secondary-400" />
+          <span>All Off</span>
+        </button>
       </div>
 
-      <div class="space-y-2">
+      <div class="space-y-2.5">
         <div
-          v-for="zone in zones"
-          :key="zone.id"
-          class="rounded-xl border p-3 transition cursor-pointer"
+          v-for="group in section.items"
+          :key="group.id"
+          class="rounded-2xl border p-3.5 transition cursor-pointer"
           :class="
-            selectedGroupId === zone.id
-              ? 'border-zinc-600 bg-zinc-900 shadow-sm'
-              : 'border-zinc-800/80 bg-zinc-900/40 hover:border-zinc-700/80 hover:bg-zinc-900/70'
+            selectedGroupId === group.id
+              ? 'border-primary-600/30 bg-primary-700/10 shadow-sm'
+              : 'border-white/10 bg-[#060a2e]/55 hover:border-white/10 hover:bg-[#080d3a]/80'
           "
-          @click="emit('select', zone.id)"
+          @click="emit('select', group.id)"
         >
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="truncate text-sm font-medium text-zinc-100">{{ zone.name }}</p>
-              <p class="text-xs text-zinc-500">
-                {{ zone.isOn ? `${zone.onCount}/${zone.totalCount} on · ${zone.brightness}%` : 'Off' }}
+              <p class="truncate text-sm font-medium text-white">{{ group.name }}</p>
+              <p class="mt-0.5 text-xs text-slate-400">
+                {{ group.isOn ? `${group.onCount}/${group.totalCount} on · ${group.brightness}%` : 'Off' }}
               </p>
             </div>
 
             <button
               type="button"
-              :aria-label="`Toggle ${zone.name}`"
-              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition cursor-pointer"
+              :aria-label="`Toggle ${group.name}`"
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition cursor-pointer"
               :class="
-                zone.isOn
-                  ? 'border-amber-400/40 bg-amber-400/15 text-amber-300 hover:bg-amber-400/25'
-                  : 'border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
+                group.isOn
+                  ? 'border-primary-400/40 bg-primary-400/15 text-primary-300 hover:bg-primary-400/25'
+                  : 'border-white/10 bg-[#03051a]/70 text-slate-400 hover:border-primary-400/35 hover:text-white'
               "
-              @click.stop="emit('toggle', zone)"
+              @click.stop="emit('toggle', group)"
             >
               <Power class="h-4 w-4" />
             </button>
           </div>
 
-          <div v-if="zone.isOn" class="mt-3" @click.stop>
+          <div v-if="group.isOn" class="mt-3.5" @click.stop>
             <input
               type="range"
               min="1"
               max="100"
-              :value="zone.brightness"
-              class="w-full"
-              :style="{
-                background: `linear-gradient(to right, #fbbf24 ${zone.brightness}%, #27272a ${zone.brightness}%)`,
-                borderRadius: '9999px',
-                height: '6px',
-              }"
-              @input="onGroupBrightnessInput(zone, $event)"
+              :aria-label="`${group.name} brightness`"
+              :value="group.brightness"
+              class="hue-pill-slider-sm w-full"
+              style="background: linear-gradient(to right, #0a1435 0%, #008363 48%, #25e2a5 100%);"
+              @input="onGroupBrightnessInput(group, $event)"
             />
           </div>
         </div>

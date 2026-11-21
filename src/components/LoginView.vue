@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { AlertCircle, ArrowRight, Lightbulb, Play, Sparkles } from '@lucide/vue'
 import { isOAuthConfigured } from '../config'
+import AppFooter from './AppFooter.vue'
 import AuroraBackground from './AuroraBackground.vue'
 
 withDefaults(
@@ -23,12 +24,12 @@ const configured = isOAuthConfigured()
 </script>
 
 <template>
-  <div class="relative isolate min-h-screen flex flex-col justify-between overflow-hidden px-5 py-8 sm:px-10 sm:py-10">
+  <div class="relative isolate min-h-screen flex flex-col justify-between overflow-hidden pt-6 sm:pt-8">
     <!-- Custom Wavy Northern Lights SVG Sky -->
     <AuroraBackground />
 
     <!-- Minimal Top Header -->
-    <header class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between">
+    <header class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-4 sm:px-6">
       <div class="flex items-center gap-2.5">
         <div
           class="flex h-9 w-9 items-center justify-center rounded-xl border border-primary-400/30 bg-primary-500/15 text-primary-300 shadow-[0_0_24px_rgba(0,205,146,0.25)] backdrop-blur-md"
@@ -47,7 +48,7 @@ const configured = isOAuthConfigured()
     </header>
 
     <!-- Main Content: Left-aligned editorial hero + sleek frosted glass login panel -->
-    <main class="relative z-10 mx-auto my-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 py-10 lg:grid-cols-12">
+    <main class="relative z-10 mx-auto my-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-12">
       <!-- Left Column: Minimalist Northern Lights Headline over the deep midnight sky -->
       <div class="lg:col-span-7 space-y-5">
         <p class="text-xs font-semibold uppercase tracking-[0.22em] text-primary-300/90">
@@ -62,7 +63,7 @@ const configured = isOAuthConfigured()
           </span>
         </h1>
         <p class="max-w-lg text-sm sm:text-base leading-relaxed text-slate-300/80">
-          Control every light, room, and scene directly from your browser over secure HTTPS from anywhere in the world. Open Hue Controller is a free, open-source, and privacy-first web app
+          Control every light, room, and scene directly from your browser over secure HTTPS from anywhere in the world. Open Hue Controller is a free, open-source, and privacy-first web app.
         </p>
       </div>
 
@@ -90,7 +91,7 @@ const configured = isOAuthConfigured()
             <button
               type="button"
               :disabled="isAuthenticating"
-              class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-400 px-4 py-3 font-bold text-primary-950 shadow-[0_0_28px_rgba(0,205,146,0.35)] transition hover:bg-primary-400 hover:shadow-[0_0_36px_rgba(37,226,165,0.5)] disabled:opacity-60 cursor-pointer"
+              class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-400 px-4 py-3 text-sm font-bold text-primary-950 shadow-[0_0_28px_rgba(0,205,146,0.35)] transition hover:bg-primary-300 hover:shadow-[0_0_36px_rgba(37,226,165,0.5)] disabled:opacity-60 cursor-pointer"
               @click="emit('login')"
             >
               <span>{{ isAuthenticating ? 'Redirecting to Philips Hue…' : 'Sign in with Philips Hue' }}</span>
@@ -115,13 +116,7 @@ const configured = isOAuthConfigured()
       </div>
     </main>
 
-    <!-- Minimal Footer -->
-    <footer
-      class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between text-xs text-slate-200/75 drop-shadow-[0_1px_8px_rgba(2,3,28,0.85)]"
-    >
-      <span>Open Hue Controller</span>
-      <span>100% Free &middot; Cloudflare + GitHub Pages</span>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 

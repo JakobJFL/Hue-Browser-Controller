@@ -24,7 +24,10 @@ function pointInTriangle(p: XyPoint, a: XyPoint, b: XyPoint, c: XyPoint): boolea
   const dot11 = v1x * v1x + v1y * v1y
   const dot12 = v1x * v2x + v1y * v2y
 
-  const invDenom = 1 / (dot00 * dot11 - dot01 * dot01)
+  const denom = dot00 * dot11 - dot01 * dot01
+  if (Math.abs(denom) < 1e-10) return false
+
+  const invDenom = 1 / denom
   const u = (dot11 * dot02 - dot01 * dot12) * invDenom
   const v = (dot00 * dot12 - dot01 * dot02) * invDenom
   return u >= 0 && v >= 0 && u + v <= 1
@@ -155,8 +158,9 @@ export function mirekToHex(mirek = 300): string {
   return `#${[rByte, gByte, bByte].map((n) => n.toString(16).padStart(2, '0')).join('')}`
 }
 
-export function getLightDisplayHex(light: Pick<HueLight, 'isOn' | 'activeMode' | 'mirek' | 'xy'>): string {
-  if (!light.isOn) return '#27272a'
+export function getLightColorHex(
+  light: Pick<HueLight, 'activeMode' | 'mirek' | 'xy'>
+): string {
   if (light.activeMode === 'ct' && light.mirek) {
     return mirekToHex(light.mirek)
   }
@@ -167,4 +171,148 @@ export function getLightDisplayHex(light: Pick<HueLight, 'isOn' | 'activeMode' |
     return mirekToHex(light.mirek)
   }
   return '#fde68a'
+}
+
+export function getLightDisplayHex(
+  light: Pick<HueLight, 'isOn' | 'reachable' | 'activeMode' | 'mirek' | 'xy'>
+): string {
+  if (!light.reachable || !light.isOn) return '#141b4d'
+  return getLightColorHex(light)
+}
+
+export interface HsvColor {
+  h: number
+  s: number
+  v: number
+}
+
+export function hsvToHex(h: number, s: number, v = 100): string {
+  const hue = ((h % 360) + 360) % 360
+  const sat = clamp(s, 0, 100) / 100
+  const val = clamp(v, 0, 100) / 100
+
+  const c = val * sat
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1))
+  const m = val - c
+
+  let r1 = 0
+  let g1 = 0
+  let b1 = 0
+
+  if (hue < 60) {
+    r1 = c
+    g1 = x
+  } else if (hue < 120) {
+    r1 = x
+    g1 = c
+  } else if (hue < 180) {
+    g1 = c
+    b1 = x
+  } else if (hue < 240) {
+    g1 = x
+    b1 = c
+  } else if (hue < 300) {
+    r1 = x
+    b1 = c
+  } else {
+    r1 = c
+    b1 = x
+  }
+
+  const rByte = clamp(Math.round((r1 + m) * 255), 0, 255)
+  const gByte = clamp(Math.round((g1 + m) * 255), 0, 255)
+  const bByte = clamp(Math.round((b1 + m) * 255), 0, 255)
+
+  return `#${[rByte, gByte, bByte].map((n) => n.toString(16).padStart(2, '0')).join('')}`
+}
+
+export function hexToHsv(hex: string): HsvColor {
+  const clean = hex.replace('#', '')
+  const r = (parseInt(clean.slice(0, 2), 16) || 0) / 255
+  const g = (parseInt(clean.slice(2, 4), 16) || 0) / 255
+  const b = (parseInt(clean.slice(4, 6), 16) || 0) / 255
+
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const d = max - min
+
+  let h = 0
+  if (d !== 0) {
+    if (max === r) {
+      h = ((g - b) / d) % 6
+    } else if (max === g) {
+      h = (b - r) / d + 2
+    } else {
+      h = (r - g) / d + 4
+    }
+    h *= 60
+    if (h < 0) h += 360
+  }
+
+  const s = max === 0 ? 0 : (d / max) * 100
+  const v = max * 100
+
+  return { h, s, v }
+}
+
+export interface LightSurfacePalette {
+  background: string
+  boxShadow: string
+  useDarkText: boolean
+}
+
+/**
+ * Computes a modern luminous card surface and WCAG-contrasting text mode
+ * by blending the bulb's display hex with its live brightness over midnight blue (#080d38).
+ */
+export function getLightSurfacePalette(
+  light: Pick<
+    HueLight,
+    'isOn' | 'reachable' | 'brightness' | 'supportsDimming' | 'activeMode' | 'mirek' | 'xy'
+  >
+): LightSurfacePalette {
+  if (!light.reachable) {
+    return {
+      background: 'rgba(5, 8, 34, 0.55)',
+      boxShadow: 'none',
+      useDarkText: false,
+    }
+  }
+
+  if (!light.isOn) {
+    return {
+      background: 'rgba(7, 12, 51, 0.75)',
+      boxShadow: 'none',
+      useDarkText: false,
+    }
+  }
+
+  const hex = getLightDisplayHex(light).replace('#', '')
+  const r = parseInt(hex.slice(0, 2), 16) || 253
+  const g = parseInt(hex.slice(2, 4), 16) || 230
+  const b = parseInt(hex.slice(4, 6), 16) || 138
+
+  const briRatio = light.supportsDimming ? clamp(light.brightness, 1, 100) / 100 : 1
+  const topAlpha = Number((0.52 + 0.46 * briRatio).toFixed(3))
+  const bottomAlpha = Number((0.42 + 0.46 * briRatio).toFixed(3))
+  const avgAlpha = (topAlpha + bottomAlpha) / 2
+
+  // Blended RGB against base #080d38 -> rgb(8, 13, 56)
+  const br = r * avgAlpha + 8 * (1 - avgAlpha)
+  const bg = g * avgAlpha + 13 * (1 - avgAlpha)
+  const bb = b * avgAlpha + 56 * (1 - avgAlpha)
+
+  const toLinear = (c: number): number => {
+    const n = c / 255
+    return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4
+  }
+  const luminance = 0.2126 * toLinear(br) + 0.7152 * toLinear(bg) + 0.0722 * toLinear(bb)
+
+  const glowAlpha = Number((0.16 + 0.26 * briRatio).toFixed(2))
+
+  return {
+    background: `linear-gradient(180deg, rgba(${r}, ${g}, ${b}, ${topAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${bottomAlpha}) 100%), #080d38`,
+    boxShadow: `0 10px 28px -10px rgba(${r}, ${g}, ${b}, ${glowAlpha}), inset 0 1px 0 rgba(255, 255, 255, 0.3)`,
+    useDarkText: luminance > 0.24,
+  }
 }

@@ -9,6 +9,18 @@ import type {
 
 const SESSION_KEY = 'open_hue_session_v2'
 const OAUTH_STATE_KEY = 'open_hue_oauth_state'
+const REQUEST_TIMEOUT_MS = 15_000
+
+class ApiStatusError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
+let inflightRefresh: Promise<HueSession> | null = null
+let inflightPair: Promise<string> | null = null
 
 interface WorkerTokenResponse {
   access_token: string
@@ -44,12 +56,20 @@ export function loadStoredSession(): HueSession | null {
 }
 
 export function saveSession(session: HueSession): void {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  } catch {
+    // Ignore storage quota/privacy errors
+  }
 }
 
 export function clearSession(): void {
-  localStorage.removeItem(SESSION_KEY)
-  sessionStorage.removeItem(OAUTH_STATE_KEY)
+  try {
+    localStorage.removeItem(SESSION_KEY)
+    sessionStorage.removeItem(OAUTH_STATE_KEY)
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 export function startHueOAuth(): void {
@@ -76,9 +96,12 @@ async function workerJson<T>(path: string, options: RequestInit = {}): Promise<T
   const res = await fetch(`${HUE_CONFIG.workerUrl}${path}`, {
     ...options,
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    signal: options.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
   const data = (await res.json().catch(() => ({}))) as T & { error?: string }
-  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
+  if (!res.ok) {
+    throw new ApiStatusError(data.error || `Request failed (${res.status})`, res.status)
+  }
   return data
 }
 
@@ -91,16 +114,22 @@ export async function handleOAuthCallbackIfPresent(): Promise<HueSession | null>
   if (!code && !oauthError) return null
   window.history.replaceState({}, document.title, `${url.origin}${url.pathname}`)
 
+  let expectedState: string | null
+  try {
+    expectedState = sessionStorage.getItem(OAUTH_STATE_KEY)
+    sessionStorage.removeItem(OAUTH_STATE_KEY)
+  } catch {
+    expectedState = null
+  }
+
   if (oauthError) {
     throw new Error(
       `Philips Hue login denied: ${url.searchParams.get('error_description') || oauthError}`
     )
   }
 
-  const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY)
-  sessionStorage.removeItem(OAUTH_STATE_KEY)
-  if (expectedState && returnedState && expectedState !== returnedState) {
-    throw new Error('OAuth state mismatch. Please try signing in again.')
+  if (!expectedState || !returnedState || expectedState !== returnedState) {
+    throw new Error('OAuth state verification failed. Please sign in again.')
   }
 
   const tokenData = await workerJson<WorkerTokenResponse>('/auth/token', {
@@ -128,22 +157,56 @@ export async function handleOAuthCallbackIfPresent(): Promise<HueSession | null>
 }
 
 async function refreshSessionTokens(session: HueSession): Promise<HueSession> {
+  if (inflightRefresh) return inflightRefresh
+
   if (!session.refresh_token) {
     clearSession()
     throw new Error('Session expired. Please sign in again.')
   }
-  const refreshed = await workerJson<WorkerTokenResponse>('/auth/refresh', {
-    method: 'POST',
-    body: JSON.stringify({ refresh_token: session.refresh_token }),
-  })
-  const updated: HueSession = {
-    ...session,
-    access_token: refreshed.access_token,
-    refresh_token: refreshed.refresh_token || session.refresh_token,
-    expires_at: Date.now() + (Number(refreshed.expires_in) || 604800) * 1000,
-  }
-  saveSession(updated)
-  return updated
+
+  const refreshToken = session.refresh_token
+  inflightRefresh = (async () => {
+    try {
+      const refreshed = await workerJson<WorkerTokenResponse>('/auth/refresh', {
+        method: 'POST',
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      })
+      const latest = loadStoredSession() || session
+      const updated: HueSession = {
+        ...latest,
+        access_token: refreshed.access_token,
+        refresh_token: refreshed.refresh_token || refreshToken,
+        expires_at: Date.now() + (Number(refreshed.expires_in) || 604800) * 1000,
+      }
+      saveSession(updated)
+      return updated
+    } catch (err) {
+      if (err instanceof ApiStatusError && (err.status === 400 || err.status === 401)) {
+        clearSession()
+      }
+      throw err
+    } finally {
+      inflightRefresh = null
+    }
+  })()
+
+  return inflightRefresh
+}
+
+async function pairApplicationKey(accessToken: string): Promise<string> {
+  if (inflightPair) return inflightPair
+  inflightPair = (async () => {
+    try {
+      const pair = await workerJson<WorkerPairResponse>('/auth/pair', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      return pair.application_key
+    } finally {
+      inflightPair = null
+    }
+  })()
+  return inflightPair
 }
 
 async function ensureActiveSession(): Promise<HueSession> {
@@ -154,11 +217,8 @@ async function ensureActiveSession(): Promise<HueSession> {
     session = await refreshSessionTokens(session)
   }
   if (!session.application_key) {
-    const pair = await workerJson<WorkerPairResponse>('/auth/pair', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    })
-    session = { ...session, application_key: pair.application_key }
+    const applicationKey = await pairApplicationKey(session.access_token)
+    session = { ...session, application_key: applicationKey }
     saveSession(session)
   }
   return session
@@ -178,6 +238,7 @@ async function clipRequest(
       ...(options.body ? { 'Content-Type': 'application/json' } : {}),
     },
     body: options.body ? JSON.stringify(options.body) : undefined,
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
 
   if (res.status === 401 && retry < 1) {
@@ -185,11 +246,8 @@ async function clipRequest(
     return clipRequest(subpath, options, retry + 1)
   }
   if (res.status === 403 && retry < 1) {
-    const pair = await workerJson<WorkerPairResponse>('/auth/pair', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    })
-    saveSession({ ...session, application_key: pair.application_key })
+    const applicationKey = await pairApplicationKey(session.access_token)
+    saveSession({ ...session, application_key: applicationKey })
     return clipRequest(subpath, options, retry + 1)
   }
 
@@ -206,12 +264,13 @@ export const fetchAllResources = (): Promise<ClipApiResponse> => clipRequest('')
 export const updateGroupedLight = (
   id: string,
   body: GroupedLightUpdatePayload
-): Promise<ClipApiResponse> => clipRequest(`/grouped_light/${id}`, { method: 'PUT', body })
+): Promise<ClipApiResponse> =>
+  clipRequest(`/grouped_light/${encodeURIComponent(id)}`, { method: 'PUT', body })
 export const updateLight = (id: string, body: LightUpdatePayload): Promise<ClipApiResponse> =>
-  clipRequest(`/light/${id}`, { method: 'PUT', body })
+  clipRequest(`/light/${encodeURIComponent(id)}`, { method: 'PUT', body })
 export const recallScene = (
   id: string,
   action: SceneRecallAction = 'active'
 ): Promise<ClipApiResponse> =>
-  clipRequest(`/scene/${id}`, { method: 'PUT', body: { recall: { action } } })
+  clipRequest(`/scene/${encodeURIComponent(id)}`, { method: 'PUT', body: { recall: { action } } })
 

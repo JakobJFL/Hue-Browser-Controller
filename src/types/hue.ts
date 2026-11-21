@@ -120,6 +120,7 @@ export type AuthMode = 'logged_out' | 'authenticating' | 'authenticated' | 'demo
 
 export interface HueSettings {
   showUnreachable: boolean
+  showColorTempOnColorLights: boolean
 }
 
 export interface GroupedLightUpdatePayload {

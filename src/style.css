@@ -81,47 +81,114 @@
   }
 }
 
-/* Clean, minimalistic range slider styling across browsers */
-input[type="range"] {
+/* Tall pill capsule range sliders with concentric hollow ring thumb */
+.hue-pill-slider,
+.hue-pill-slider-sm {
   -webkit-appearance: none;
   appearance: none;
-  background: transparent;
+  box-sizing: border-box;
+  border-radius: 9999px;
+  padding: 0 3px;
   cursor: pointer;
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 0.5rem;
+.hue-pill-slider {
+  height: 28px;
+}
+
+.hue-pill-slider-sm {
+  height: 24px;
+}
+
+.hue-pill-slider:focus-visible,
+.hue-pill-slider-sm:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+    0 0 0 2px rgba(37, 226, 165, 0.45);
+}
+
+.hue-pill-slider::-webkit-slider-runnable-track {
+  height: 22px;
   border-radius: 9999px;
+  background: transparent;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+.hue-pill-slider-sm::-webkit-slider-runnable-track {
+  height: 18px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.hue-pill-slider::-webkit-slider-thumb,
+.hue-pill-slider-sm::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  height: 1rem;
-  width: 1rem;
+  box-sizing: border-box;
   border-radius: 9999px;
-  background: #ffffff;
-  border: 2px solid rgba(3, 5, 26, 0.75);
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
-  margin-top: -0.25rem;
-  transition: transform 0.12s ease;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2.5px solid #ffffff;
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.45),
+    inset 0 1px 3px rgba(0, 0, 0, 0.32);
+  margin-top: 0;
+  transition: transform 0.12s ease, background-color 0.12s ease;
 }
 
-input[type="range"]:active::-webkit-slider-thumb {
-  transform: scale(1.12);
+.hue-pill-slider::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
 }
 
-input[type="range"]::-moz-range-track {
-  height: 0.5rem;
-  border-radius: 9999px;
+.hue-pill-slider-sm::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
 }
 
-input[type="range"]::-moz-range-thumb {
-  height: 1rem;
-  width: 1rem;
+.hue-pill-slider:active::-webkit-slider-thumb,
+.hue-pill-slider-sm:active::-webkit-slider-thumb {
+  transform: scale(1.06);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.hue-pill-slider::-moz-range-track {
+  height: 22px;
   border-radius: 9999px;
-  background: #ffffff;
-  border: 2px solid rgba(3, 5, 26, 0.75);
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  background: transparent;
+}
+
+.hue-pill-slider-sm::-moz-range-track {
+  height: 18px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.hue-pill-slider::-moz-range-thumb,
+.hue-pill-slider-sm::-moz-range-thumb {
+  box-sizing: border-box;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2.5px solid #ffffff;
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.45),
+    inset 0 1px 3px rgba(0, 0, 0, 0.32);
+  transition: transform 0.12s ease, background-color 0.12s ease;
+}
+
+.hue-pill-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+}
+
+.hue-pill-slider-sm::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+}
+
+.hue-pill-slider:active::-moz-range-thumb,
+.hue-pill-slider-sm:active::-moz-range-thumb {
+  transform: scale(1.06);
+  background: rgba(255, 255, 255, 0.16);
 }
 
