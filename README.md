@@ -14,12 +14,12 @@ It runs on GitHub Pages with a stateless Cloudflare Worker and uses the official
 
 When you enter the websigt you can sign in with your Philips Hue account the same account as you use for the phone app. You can also try out the demo to see how it works.
 
-![The homepage.](https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/public/img/homepage.jpg)
+![The homepage.](https://jakobjfl.github.io/Hue-Browser-Controller/img/homepage.jpg)
 
 After logging in, you can switch between your rooms and sounds and control the lights in them. You can also see the scenes you created in the phone app and activate them.
 Your login credentials are saved in your browser, so it will remember you and automatically log you in.
 
-![The main app where you can control your lights.](https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/public/img/control-app.jpg)
+![The main app where you can control your lights.](https://jakobjfl.github.io/Hue-Browser-Controller/img/control-app.jpg)
 
 # Development guide
 
