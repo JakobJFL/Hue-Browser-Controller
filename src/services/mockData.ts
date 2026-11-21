@@ -19,6 +19,7 @@ const mkLight = (
     ? {
         color_temperature: {
           mirek: ct,
+          mirek_valid: xy == null,
           mirek_schema: { mirek_minimum: 153, mirek_maximum: 500 },
         },
       }

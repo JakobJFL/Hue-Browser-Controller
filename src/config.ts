@@ -1,14 +1,17 @@
 export interface HueConfig {
-  readonly clientId: string
-  readonly appId: string
-  readonly workerUrl: string
-  readonly authorizeUrl: string
+  clientId: string
+  appId: string
+  workerUrl: string
+  authorizeUrl: string
 }
 
+const metaEnv: Partial<ImportMetaEnv> =
+  (import.meta as ImportMeta & { env?: Partial<ImportMetaEnv> }).env ?? {}
+
 export const HUE_CONFIG: HueConfig = {
-  clientId: (import.meta.env.VITE_HUE_CLIENT_ID || '').trim(),
-  appId: (import.meta.env.VITE_HUE_APP_ID || 'open-hue-controller').trim(),
-  workerUrl: (import.meta.env.VITE_WORKER_URL || '').trim().replace(/\/+$/, ''),
+  clientId: (metaEnv.VITE_HUE_CLIENT_ID || '').trim(),
+  appId: (metaEnv.VITE_HUE_APP_ID || 'open-hue-controller').trim(),
+  workerUrl: (metaEnv.VITE_WORKER_URL || '').trim().replace(/\/+$/, ''),
   authorizeUrl: 'https://api.meethue.com/v2/oauth2/authorize',
 }
 

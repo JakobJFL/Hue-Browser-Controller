@@ -7,9 +7,10 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "vue-tsc -b && tsc -p worker/tsconfig.json --noEmit",
+    "typecheck": "vue-tsc -b && tsc -p worker/tsconfig.json --noEmit && tsc -p tests/tsconfig.json --noEmit",
     "lint": "eslint . --max-warnings 0",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "node --experimental-strip-types --test \"tests/*.test.ts\""
   },
   "dependencies": {
     "@lucide/vue": "^1.77.0",

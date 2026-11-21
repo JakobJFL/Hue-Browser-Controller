@@ -18,7 +18,7 @@ interface HueBridgeRegisterEntry {
   error?: { description?: string }
 }
 
-class HttpError extends Error {
+export class HttpError extends Error {
   status: number
   constructor(message: string, status = 500) {
     super(message)
@@ -27,30 +27,35 @@ class HttpError extends Error {
 }
 
 const HUE_BASE = 'https://api.meethue.com'
-const MAX_BODY_BYTES = 16_384
+export const MAX_BODY_BYTES = 16_384
 const UPSTREAM_TIMEOUT_MS = 12_000
-const CLIP_PATH_RE = /^\/api\/clip\/v2\/resource(?:\/(light|grouped_light|scene)\/[a-zA-Z0-9-]+)?$/
+export const CLIP_PATH_RE = /^\/api\/clip\/v2\/resource(?:\/(light|grouped_light|scene)\/[a-zA-Z0-9-]+)?$/
+const BEARER_TOKEN_RE = /^Bearer\s+([\x21-\x7e]{1,4096})$/i
+const APP_KEY_RE = /^[A-Za-z0-9._-]{1,128}$/
 
-function parseAllowedOrigins(env: Env): string[] {
+export function parseAllowedOrigins(env: Env): string[] {
   return (env.ALLOWED_ORIGINS || '')
     .split(',')
-    .map((s) => s.trim())
+    .map((s) => s.trim().replace(/\/+$/, ''))
     .filter(Boolean)
 }
 
-function isOriginAllowed(origin: string, allowed: string[]): boolean {
-  if (!origin) return true
+export function isOriginAllowed(origin: string, allowed: string[]): boolean {
+  const normalized = origin.trim().replace(/\/+$/, '')
+  if (!normalized || allowed.length === 0) return false
   if (allowed.includes('*')) return true
-  return allowed.includes(origin)
+  return allowed.includes(normalized)
 }
 
 function getCorsHeaders(request: Request, allowed: string[]): Record<string, string> {
-  const origin = request.headers.get('Origin') || ''
-  const allowOrigin = allowed.includes('*')
-    ? '*'
-    : allowed.includes(origin)
-      ? origin
-      : ''
+  const rawOrigin = request.headers.get('Origin') || ''
+  const normalizedOrigin = rawOrigin.trim().replace(/\/+$/, '')
+  const allowOrigin =
+    normalizedOrigin && allowed.includes('*')
+      ? '*'
+      : normalizedOrigin && allowed.includes(normalizedOrigin)
+        ? rawOrigin.trim()
+        : ''
 
   return {
     ...(allowOrigin ? { 'Access-Control-Allow-Origin': allowOrigin } : {}),
@@ -59,6 +64,8 @@ function getCorsHeaders(request: Request, allowed: string[]): Record<string, str
     'Access-Control-Max-Age': '86400',
     'Cache-Control': 'no-store',
     'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'no-referrer',
     Vary: 'Origin',
   }
 }
@@ -66,28 +73,81 @@ function getCorsHeaders(request: Request, allowed: string[]): Record<string, str
 const json = (body: unknown, status: number, cors: Record<string, string>): Response =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...cors, 'Content-Type': 'application/json' },
+    headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8' },
   })
 
-async function readBoundedBody(request: Request): Promise<string> {
-  const contentLength = Number(request.headers.get('Content-Length') || '0')
-  if (contentLength > MAX_BODY_BYTES) {
-    throw new HttpError('Request payload too large', 413)
-  }
-  const text = await request.text()
-  if (text.length > MAX_BODY_BYTES) {
-    throw new HttpError('Request payload too large', 413)
-  }
-  return text
+export function extractBearerToken(authHeader: string | null): string | null {
+  if (!authHeader) return null
+  const match = BEARER_TOKEN_RE.exec(authHeader.trim())
+  return match?.[1] ?? null
 }
 
-async function parseJsonBody<T>(request: Request): Promise<T> {
+function requireJsonContentType(request: Request): void {
+  const ct = request.headers.get('Content-Type') || ''
+  if (!/^application\/json\b/i.test(ct.trim())) {
+    throw new HttpError('Content-Type must be application/json', 415)
+  }
+}
+
+export async function readBoundedBody(request: Request, maxBytes = MAX_BODY_BYTES): Promise<string> {
+  const rawLength = request.headers.get('Content-Length')
+  if (rawLength !== null) {
+    const contentLength = Number(rawLength)
+    if (!Number.isFinite(contentLength) || contentLength < 0) {
+      throw new HttpError('Invalid Content-Length header', 400)
+    }
+    if (contentLength > maxBytes) {
+      throw new HttpError('Request payload too large', 413)
+    }
+  }
+
+  if (!request.body) return ''
+
+  const reader = request.body.getReader()
+  const chunks: Uint8Array[] = []
+  let totalBytes = 0
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    if (value) {
+      totalBytes += value.byteLength
+      if (totalBytes > maxBytes) {
+        await reader.cancel().catch(() => {})
+        throw new HttpError('Request payload too large', 413)
+      }
+      chunks.push(value)
+    }
+  }
+
+  const merged = new Uint8Array(totalBytes)
+  let offset = 0
+  for (const chunk of chunks) {
+    merged.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+
+  return new TextDecoder().decode(merged)
+}
+
+export async function parseJsonObjectBody<T extends Record<string, unknown>>(
+  request: Request
+): Promise<T> {
+  requireJsonContentType(request)
   const raw = await readBoundedBody(request)
+  if (!raw.trim()) {
+    throw new HttpError('Empty JSON request body', 400)
+  }
+  let parsed: unknown
   try {
-    return JSON.parse(raw) as T
+    parsed = JSON.parse(raw)
   } catch {
     throw new HttpError('Invalid JSON request body', 400)
   }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new HttpError('JSON request body must be an object', 400)
+  }
+  return parsed as T
 }
 
 async function pairBridge(accessToken: string): Promise<string> {
@@ -103,20 +163,27 @@ async function pairBridge(accessToken: string): Promise<string> {
     signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   })
   if (!linkRes.ok) {
-    throw new Error(`Virtual link-button failed (${linkRes.status}): ${await linkRes.text()}`)
+    const status = linkRes.status === 401 || linkRes.status === 403 ? linkRes.status : 502
+    throw new HttpError(`Virtual link-button failed (${linkRes.status}).`, status)
   }
 
   const regRes = await fetch(`${HUE_BASE}/route/api`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ devicetype: 'open_hue_controller#browser', generateclientkey: true }),
+    body: JSON.stringify({ devicetype: 'open_hue_controller#browser' }),
     signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   })
-  const regData = (await regRes.json()) as HueBridgeRegisterEntry[]
-  const username = Array.isArray(regData) ? regData[0]?.success?.username : undefined
-  if (!username) {
-    const desc = (Array.isArray(regData) && regData[0]?.error?.description) || JSON.stringify(regData)
-    throw new Error(`Bridge registration failed: ${desc}`)
+  const regData = (await regRes.json().catch(() => null)) as HueBridgeRegisterEntry[] | null
+  if (!regRes.ok || !Array.isArray(regData)) {
+    const status = regRes.status === 401 || regRes.status === 403 ? regRes.status : 502
+    throw new HttpError(`Bridge registration request failed (${regRes.status}).`, status)
+  }
+
+  const username = regData[0]?.success?.username
+  if (typeof username !== 'string' || !APP_KEY_RE.test(username)) {
+    const rawDesc = regData[0]?.error?.description
+    const desc = typeof rawDesc === 'string' && rawDesc ? rawDesc.slice(0, 200) : 'No application key returned'
+    throw new HttpError(`Bridge registration failed: ${desc}`, 502)
   }
   return username
 }
@@ -139,13 +206,18 @@ async function requestOAuthToken(
     signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   })
   const data = (await res.json().catch(() => ({}))) as HueOAuthTokenResponse
-  if (!res.ok) {
+  if (!res.ok || typeof data.access_token !== 'string' || !data.access_token) {
+    const status = res.status >= 400 && res.status < 500 ? res.status : 502
     throw new HttpError(
       data.error_description || data.error || `OAuth failed (${res.status})`,
-      res.status
+      status
     )
   }
   return data
+}
+
+export interface WorkerHandler<E = Env> {
+  fetch(request: Request, env: E): Promise<Response>
 }
 
 export default {
@@ -166,38 +238,38 @@ export default {
 
     try {
       if (url.pathname === '/auth/token' && request.method === 'POST') {
-        const { code } = await parseJsonBody<{ code?: string }>(request)
-        if (!code || typeof code !== 'string') {
-          return json({ error: 'Missing authorization code' }, 400, cors)
+        const { code } = await parseJsonObjectBody<{ code?: unknown }>(request)
+        if (typeof code !== 'string' || !code.trim() || code.length > 2048) {
+          return json({ error: 'Missing or invalid authorization code' }, 400, cors)
         }
 
-        const tokens = await requestOAuthToken({ code, grant_type: 'authorization_code' }, env)
+        const tokens = await requestOAuthToken({ code: code.trim(), grant_type: 'authorization_code' }, env)
         let application_key: string | null = null
         let pairing_warning: string | null = null
         try {
           application_key = await pairBridge(tokens.access_token)
         } catch (e) {
-          pairing_warning = e instanceof Error ? e.message : String(e)
+          pairing_warning = e instanceof Error ? e.message : 'Automatic bridge pairing failed'
         }
         return json({ ...tokens, application_key, pairing_warning }, 200, cors)
       }
 
       if (url.pathname === '/auth/refresh' && request.method === 'POST') {
-        const { refresh_token } = await parseJsonBody<{ refresh_token?: string }>(request)
-        if (!refresh_token || typeof refresh_token !== 'string') {
-          return json({ error: 'Missing refresh_token' }, 400, cors)
+        const { refresh_token } = await parseJsonObjectBody<{ refresh_token?: unknown }>(request)
+        if (typeof refresh_token !== 'string' || !refresh_token.trim() || refresh_token.length > 4096) {
+          return json({ error: 'Missing or invalid refresh_token' }, 400, cors)
         }
 
         const tokens = await requestOAuthToken(
-          { refresh_token, grant_type: 'refresh_token' },
+          { refresh_token: refresh_token.trim(), grant_type: 'refresh_token' },
           env
         )
         return json(tokens, 200, cors)
       }
 
       if (url.pathname === '/auth/pair' && request.method === 'POST') {
-        const token = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '').trim()
-        if (!token) return json({ error: 'Missing Bearer token' }, 401, cors)
+        const token = extractBearerToken(request.headers.get('Authorization'))
+        if (!token) return json({ error: 'Missing or invalid Bearer token' }, 401, cors)
 
         const application_key = await pairBridge(token)
         return json({ application_key }, 200, cors)
@@ -214,19 +286,23 @@ export default {
           return json({ error: 'Resource ID required for PUT' }, 400, cors)
         }
 
+        const token = extractBearerToken(request.headers.get('Authorization'))
+        const appKey = (request.headers.get('hue-application-key') || '').trim()
+        if (!token || !APP_KEY_RE.test(appKey)) {
+          return json({ error: 'Missing or invalid authentication headers' }, 401, cors)
+        }
+
         const targetUrl = `${HUE_BASE}/route${url.pathname.slice(4)}`
         const headers = new Headers()
-        const auth = request.headers.get('Authorization')
-        const appKey = request.headers.get('hue-application-key')
-        if (!auth || !appKey) {
-          return json({ error: 'Missing authentication headers' }, 401, cors)
-        }
-        headers.set('Authorization', auth)
+        headers.set('Authorization', `Bearer ${token}`)
         headers.set('hue-application-key', appKey)
 
-        const hasBody = request.method === 'PUT'
-        const bodyText = hasBody ? await readBoundedBody(request) : undefined
-        if (hasBody) headers.set('Content-Type', 'application/json')
+        let bodyText: string | undefined
+        if (request.method === 'PUT') {
+          const payload = await parseJsonObjectBody<Record<string, unknown>>(request)
+          bodyText = JSON.stringify(payload)
+          headers.set('Content-Type', 'application/json')
+        }
 
         const upstream = await fetch(targetUrl, {
           method: request.method,
@@ -235,11 +311,23 @@ export default {
           signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
         })
 
-        return new Response(await upstream.text(), {
+        const upstreamText = await upstream.text()
+        let responseBody = upstreamText
+        try {
+          JSON.parse(upstreamText)
+        } catch {
+          responseBody = JSON.stringify({
+            error: upstream.ok
+              ? 'Invalid JSON response from Philips Hue'
+              : `Philips Hue upstream error (${upstream.status})`,
+          })
+        }
+
+        return new Response(responseBody, {
           status: upstream.status,
           headers: {
             ...cors,
-            'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
           },
         })
       }
@@ -249,10 +337,11 @@ export default {
       if (err instanceof DOMException && err.name === 'TimeoutError') {
         return json({ error: 'Upstream Philips Hue request timed out' }, 504, cors)
       }
-      const status = err instanceof HttpError ? err.status : 500
-      const message = err instanceof Error ? err.message : 'Internal Worker Error'
-      return json({ error: message }, status, cors)
+      if (err instanceof HttpError) {
+        return json({ error: err.message }, err.status, cors)
+      }
+      return json({ error: 'Internal Worker Error' }, 500, cors)
     }
   },
-} satisfies ExportedHandler<Env>
+} satisfies WorkerHandler<Env>
 

@@ -68,6 +68,7 @@ function updateFromPointer(clientX: number, clientY: number): void {
 }
 
 function onPointerDown(event: PointerEvent): void {
+  if (event.pointerType === 'mouse' && event.button !== 0) return
   isDragging.value = true
   ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
   updateFromPointer(event.clientX, event.clientY)
@@ -121,6 +122,7 @@ function onKeyDown(event: KeyboardEvent): void {
         :aria-valuemin="0"
         :aria-valuemax="100"
         :aria-valuenow="Math.round(saturation)"
+        :aria-valuetext="`Hue ${Math.round(hue)} degrees, saturation ${Math.round(saturation)} percent`"
         class="relative h-44 w-44 touch-none select-none rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18),0_8px_24px_rgba(0,0,0,0.4)] outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 cursor-pointer"
         style="
           background:

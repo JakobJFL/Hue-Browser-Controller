@@ -35,6 +35,7 @@ export interface ClipRawResource {
   dimming?: { brightness?: number }
   color_temperature?: {
     mirek?: number | null
+    mirek_valid?: boolean
     mirek_schema?: {
       mirek_minimum?: number
       mirek_maximum?: number

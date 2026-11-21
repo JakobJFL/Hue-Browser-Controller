@@ -111,7 +111,11 @@ onMounted(() => {
       </div>
 
       <div v-if="groups.length === 0 && !isLoading" class="py-20 text-center text-sm text-slate-400">
-        No rooms or lights found on this Hue Bridge.
+        {{
+          errorMessage
+            ? 'Could not reach Philips Hue right now. Use Refresh above to try again.'
+            : 'No rooms or lights found on this Hue Bridge.'
+        }}
       </div>
 
       <div v-else class="grid grid-cols-1 gap-8 md:grid-cols-12">

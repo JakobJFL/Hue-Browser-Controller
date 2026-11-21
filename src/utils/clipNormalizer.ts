@@ -45,9 +45,25 @@ export function normalizeClipResources(rawItems: ClipRawResource[] = []): Normal
         ? Boolean(connectivityByDevice.get(deviceId))
         : true
 
-    const supportsColor = Boolean(l.color?.xy)
+    const supportsColor = Boolean(l.color)
     const supportsCt = Boolean(l.color_temperature)
     const supportsDimming = Boolean(l.dimming)
+
+    const mirekMin = l.color_temperature?.mirek_schema?.mirek_minimum || 153
+    const mirekMax = Math.max(mirekMin, l.color_temperature?.mirek_schema?.mirek_maximum || 500)
+    const rawMirek = typeof l.color_temperature?.mirek === 'number' ? l.color_temperature.mirek : 320
+    const mirek = Math.min(mirekMax, Math.max(mirekMin, Math.round(rawMirek)))
+
+    const isCtValid =
+      l.color_temperature?.mirek_valid === true && typeof l.color_temperature.mirek === 'number'
+
+    const activeMode = isCtValid
+      ? 'ct'
+      : supportsColor && l.color?.xy
+        ? 'color'
+        : supportsCt
+          ? 'ct'
+          : 'dimming'
 
     lights[l.id] = {
       id: l.id,
@@ -55,16 +71,18 @@ export function normalizeClipResources(rawItems: ClipRawResource[] = []): Normal
       name: l.metadata?.name || 'Hue Light',
       archetype: l.metadata?.archetype || 'classic_bulb',
       isOn: Boolean(l.on?.on),
-      brightness: supportsDimming ? Math.round(l.dimming?.brightness ?? 100) : 100,
+      brightness: supportsDimming
+        ? Math.min(100, Math.max(1, Math.round(l.dimming?.brightness ?? 100)))
+        : 100,
       supportsDimming,
       supportsColor,
       supportsCt,
       xy: l.color?.xy ? { ...l.color.xy } : null,
       gamut: l.color?.gamut || null,
-      mirek: l.color_temperature?.mirek || 320,
-      mirekMin: l.color_temperature?.mirek_schema?.mirek_minimum || 153,
-      mirekMax: l.color_temperature?.mirek_schema?.mirek_maximum || 500,
-      activeMode: supportsColor ? 'color' : supportsCt ? 'ct' : 'dimming',
+      mirek,
+      mirekMin,
+      mirekMax,
+      activeMode,
       reachable,
     }
   }
@@ -89,9 +107,7 @@ export function normalizeClipResources(rawItems: ClipRawResource[] = []): Normal
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((l) => l.id)
 
-      if (g.type === 'room') {
-        for (const id of memberLightIds) assignedLightIds.add(id)
-      }
+      for (const id of memberLightIds) assignedLightIds.add(id)
 
       const groupType: GroupType = g.type === 'zone' ? 'zone' : 'room'
 
@@ -101,7 +117,7 @@ export function normalizeClipResources(rawItems: ClipRawResource[] = []): Normal
         name: g.metadata?.name || 'Unnamed Group',
         archetype: g.metadata?.archetype || 'home',
         groupedLightId: glRef?.rid || null,
-        fallbackBrightness: Math.round(gl?.dimming?.brightness ?? 80),
+        fallbackBrightness: Math.min(100, Math.max(1, Math.round(gl?.dimming?.brightness ?? 80))),
         lightIds: memberLightIds,
       }
     })
@@ -110,17 +126,32 @@ export function normalizeClipResources(rawItems: ClipRawResource[] = []): Normal
       return a.name.localeCompare(b.name)
     })
 
-  const unassigned = allLightList.filter((l) => !assignedLightIds.has(l.id))
-  if (unassigned.length > 0 && groups.length === 0) {
-    groups.push({
-      id: 'all-lights',
-      type: 'room',
-      name: 'All Lights',
-      archetype: 'home',
-      groupedLightId: homeGroupedLightId,
-      fallbackBrightness: 80,
-      lightIds: unassigned.map((l) => l.id),
-    })
+  const unassigned = allLightList
+    .filter((l) => !assignedLightIds.has(l.id))
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  if (unassigned.length > 0) {
+    if (groups.length === 0) {
+      groups.push({
+        id: 'all-lights',
+        type: 'room',
+        name: 'All Lights',
+        archetype: 'home',
+        groupedLightId: homeGroupedLightId,
+        fallbackBrightness: 80,
+        lightIds: unassigned.map((l) => l.id),
+      })
+    } else {
+      groups.push({
+        id: 'unassigned-lights',
+        type: 'room',
+        name: 'Unassigned',
+        archetype: 'home',
+        groupedLightId: null,
+        fallbackBrightness: 80,
+        lightIds: unassigned.map((l) => l.id),
+      })
+    }
   }
 
   const scenes: HueScene[] = rawScenes

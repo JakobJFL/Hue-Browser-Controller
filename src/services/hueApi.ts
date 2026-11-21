@@ -1,4 +1,4 @@
-import { HUE_CONFIG, isOAuthConfigured } from '../config'
+import { HUE_CONFIG, isOAuthConfigured } from '../config.ts'
 import type {
   ClipApiResponse,
   GroupedLightUpdatePayload,
@@ -16,6 +16,13 @@ class ApiStatusError extends Error {
   constructor(message: string, status: number) {
     super(message)
     this.status = status
+  }
+}
+
+export class AuthExpiredError extends Error {
+  constructor(message = 'Your Philips Hue session has expired. Please sign in again.') {
+    super(message)
+    this.name = 'AuthExpiredError'
   }
 }
 
@@ -42,13 +49,24 @@ interface ClipRequestOptions {
 
 export function loadStoredSession(): HueSession | null {
   try {
-    const parsed = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null') as Partial<HueSession> | null
-    if (!parsed?.access_token) return null
+    const raw = localStorage.getItem(SESSION_KEY)
+    if (!raw) return null
+    const parsed: unknown = JSON.parse(raw)
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null
+    const record = parsed as Record<string, unknown>
+    if (typeof record.access_token !== 'string' || !record.access_token.trim()) return null
+
     return {
-      access_token: parsed.access_token,
-      refresh_token: parsed.refresh_token,
-      application_key: parsed.application_key || '',
-      expires_at: parsed.expires_at || 0,
+      access_token: record.access_token,
+      refresh_token:
+        typeof record.refresh_token === 'string' && record.refresh_token
+          ? record.refresh_token
+          : undefined,
+      application_key: typeof record.application_key === 'string' ? record.application_key : '',
+      expires_at:
+        typeof record.expires_at === 'number' && Number.isFinite(record.expires_at)
+          ? record.expires_at
+          : 0,
     }
   } catch {
     return null
@@ -95,7 +113,10 @@ export function startHueOAuth(): void {
 async function workerJson<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${HUE_CONFIG.workerUrl}${path}`, {
     ...options,
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    headers: {
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.headers || {}),
+    },
     signal: options.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
   const data = (await res.json().catch(() => ({}))) as T & { error?: string }
@@ -128,7 +149,7 @@ export async function handleOAuthCallbackIfPresent(): Promise<HueSession | null>
     )
   }
 
-  if (!expectedState || !returnedState || expectedState !== returnedState) {
+  if (!expectedState || !returnedState || expectedState !== returnedState || !code) {
     throw new Error('OAuth state verification failed. Please sign in again.')
   }
 
@@ -137,13 +158,14 @@ export async function handleOAuthCallbackIfPresent(): Promise<HueSession | null>
     body: JSON.stringify({ code }),
   })
 
-  let applicationKey = tokenData.application_key || ''
+  if (typeof tokenData.access_token !== 'string' || !tokenData.access_token.trim()) {
+    throw new Error('OAuth token exchange did not return a valid access token.')
+  }
+
+  let applicationKey =
+    typeof tokenData.application_key === 'string' ? tokenData.application_key : ''
   if (!applicationKey) {
-    const pair = await workerJson<WorkerPairResponse>('/auth/pair', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${tokenData.access_token}` },
-    })
-    applicationKey = pair.application_key
+    applicationKey = await pairApplicationKey(tokenData.access_token)
   }
 
   const session: HueSession = {
@@ -161,7 +183,7 @@ async function refreshSessionTokens(session: HueSession): Promise<HueSession> {
 
   if (!session.refresh_token) {
     clearSession()
-    throw new Error('Session expired. Please sign in again.')
+    throw new AuthExpiredError()
   }
 
   const refreshToken = session.refresh_token
@@ -171,6 +193,9 @@ async function refreshSessionTokens(session: HueSession): Promise<HueSession> {
         method: 'POST',
         body: JSON.stringify({ refresh_token: refreshToken }),
       })
+      if (typeof refreshed.access_token !== 'string' || !refreshed.access_token.trim()) {
+        throw new Error('Token refresh did not return a valid access token.')
+      }
       const latest = loadStoredSession() || session
       const updated: HueSession = {
         ...latest,
@@ -183,6 +208,7 @@ async function refreshSessionTokens(session: HueSession): Promise<HueSession> {
     } catch (err) {
       if (err instanceof ApiStatusError && (err.status === 400 || err.status === 401)) {
         clearSession()
+        throw new AuthExpiredError()
       }
       throw err
     } finally {
@@ -201,6 +227,9 @@ async function pairApplicationKey(accessToken: string): Promise<string> {
         method: 'POST',
         headers: { Authorization: `Bearer ${accessToken}` },
       })
+      if (typeof pair.application_key !== 'string' || !pair.application_key.trim()) {
+        throw new Error('Bridge pairing did not return an application key.')
+      }
       return pair.application_key
     } finally {
       inflightPair = null
@@ -211,14 +240,15 @@ async function pairApplicationKey(accessToken: string): Promise<string> {
 
 async function ensureActiveSession(): Promise<HueSession> {
   let session = loadStoredSession()
-  if (!session) throw new Error('Not signed in.')
+  if (!session) throw new AuthExpiredError('Not signed in. Please sign in with Philips Hue.')
 
   if (session.expires_at && Date.now() > session.expires_at - 5 * 60 * 1000) {
     session = await refreshSessionTokens(session)
   }
   if (!session.application_key) {
     const applicationKey = await pairApplicationKey(session.access_token)
-    session = { ...session, application_key: applicationKey }
+    const latest = loadStoredSession() || session
+    session = { ...latest, application_key: applicationKey }
     saveSession(session)
   }
   return session
@@ -241,13 +271,18 @@ async function clipRequest(
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
 
-  if (res.status === 401 && retry < 1) {
-    await refreshSessionTokens(session)
-    return clipRequest(subpath, options, retry + 1)
+  if (res.status === 401) {
+    if (retry < 1) {
+      await refreshSessionTokens(session)
+      return clipRequest(subpath, options, retry + 1)
+    }
+    clearSession()
+    throw new AuthExpiredError()
   }
   if (res.status === 403 && retry < 1) {
     const applicationKey = await pairApplicationKey(session.access_token)
-    saveSession({ ...session, application_key: applicationKey })
+    const latest = loadStoredSession() || session
+    saveSession({ ...latest, application_key: applicationKey })
     return clipRequest(subpath, options, retry + 1)
   }
 

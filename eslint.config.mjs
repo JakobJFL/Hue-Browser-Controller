@@ -15,10 +15,6 @@ export default tseslint.config(
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
       parserOptions: {
         parser: tseslint.parser,
       },
@@ -43,6 +39,31 @@ export default tseslint.config(
           math: 'always',
         },
       ],
+    },
+  },
+  {
+    files: ['src/**/*.{ts,vue}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
+  {
+    files: ['worker/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.worker,
+      },
+    },
+  },
+  {
+    files: ['*.{mjs,ts}', 'tests/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
     },
   }
 )

@@ -15,9 +15,10 @@ A modern, minimalist browser controller for **Philips Hue** built with **Vue 3**
 npm install
 npm run dev
 
-# Type-check & lint
+# Type-check, lint & run unit tests
 npm run typecheck
 npm run lint
+npm test
 ```
 
 Open `http://localhost:5173` and click **Try Demo Mode** to test all controls immediately, or configure `.env` (see below) to test live Philips Hue OAuth login.
@@ -70,6 +71,13 @@ VITE_WORKER_URL=https://open-hue-controller-proxy.<your-subdomain>.workers.dev
    - `VITE_HUE_APP_ID`
    - `VITE_WORKER_URL`
 3. Push to `deploy` (or `main`) — GitHub Actions will automatically build and publish `./dist` to GitHub Pages.
+
+---
+
+## Security Notes
+
+- **Confidential OAuth Secret Isolation**: `HUE_CLIENT_SECRET` never touches the browser or repository; it lives only as an encrypted Cloudflare Worker secret, and the Worker enforces strict `Origin` allowlisting (`ALLOWED_ORIGINS`), payload size limits, Content-Type validation, and CLIP v2 path allowlisting.
+- **Custom Domain Recommendation on GitHub Pages**: Browser `localStorage` and `Origin` headers are scoped to the domain (`https://<username>.github.io`), meaning all project sites under the same GitHub account share browser storage. If you publish multiple repositories to GitHub Pages on the same account, consider configuring a custom domain (or Cloudflare Pages/Workers) for dedicated origin isolation.
 
 ---
 

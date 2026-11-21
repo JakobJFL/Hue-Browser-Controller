@@ -83,12 +83,17 @@ function onGroupBrightnessInput(group: HueGroup, event: Event): void {
           @click="emit('select', group.id)"
         >
           <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <p class="truncate text-sm font-medium text-white">{{ group.name }}</p>
-              <p class="mt-0.5 text-xs text-slate-400">
+            <button
+              type="button"
+              :aria-current="selectedGroupId === group.id ? 'true' : undefined"
+              class="min-w-0 flex-1 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 cursor-pointer"
+              @click.stop="emit('select', group.id)"
+            >
+              <span class="block truncate text-sm font-medium text-white">{{ group.name }}</span>
+              <span class="mt-0.5 block text-xs text-slate-400">
                 {{ group.isOn ? `${group.onCount}/${group.totalCount} on · ${group.brightness}%` : 'Off' }}
-              </p>
-            </div>
+              </span>
+            </button>
 
             <button
               type="button"
