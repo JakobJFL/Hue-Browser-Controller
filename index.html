@@ -1,151 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" type="text/css" href="bootstrap-5.0.0-dist/css/bootstrap.css">
-  <link rel="stylesheet" type="text/css" href="css/loginStyle.css">
-  <link rel="stylesheet" type="text/css" href="css/mainStyle.css">
-  <link rel="stylesheet" type="text/css" href="css/toggleSwitch.css">
-  <link rel="stylesheet" type="text/css" href="css/slider.css">
-  <link rel="stylesheet" type="text/css" href="css/selectors.css">
-  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
-  <link rel="manifest" href="favicon/site.webmanifest">
-  <meta name="theme-color" content="#5753b9">
-  <meta property="og:image" content="https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/main/img/ogImage.jpg" />
-	<meta name="description" content="Control all your Philips Hue lighting from a website or download The Open Hue Controller for your computer.">
-  <title>Open Hue Controller</title>
-</head>
-<body>
-<!-- Cookie Consent by FreePrivacyPolicy.com https://www.FreePrivacyPolicy.com -->
-<script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.1.0/cookie-consent.js" charset="UTF-8"></script>
-<script type="text/javascript" charset="UTF-8">
-document.addEventListener('DOMContentLoaded', function () {
-cookieconsent.run({"notice_banner_type":"simple","consent_type":"express","palette":"light","language":"en","page_load_consent_levels":["strictly-necessary"],"notice_banner_reject_button_hide":false,"preferences_center_close_button_hide":false,"page_refresh_confirmation_buttons":false,"website_name":"Open Hue Controller"});
-});
-</script>
+    <!-- Primary SEO -->
+    <title>Open Hue Controller | Control Philips Hue Lights from Any Browser</title>
+    <meta
+      name="description"
+      content="Control your Philips Hue lights, rooms, zones, and scenes directly from any browser over secure HTTPS. Free, open-source web controller — no install needed."
+    />
+    <meta name="application-name" content="Open Hue Controller" />
+    <meta name="author" content="Jakob Frederik Lykke" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <link rel="canonical" href="https://jakobjfl.github.io/Hue-Browser-Controller/" />
 
-<!-- Google Analytics -->
-<!-- Google tag (gtag.js) -->
-<script type="text/plain" data-cookie-consent="tracking" async src="https://www.googletagmanager.com/gtag/js?id=G-JKBQ4EE7BV"></script>
-<script type="text/plain" data-cookie-consent="tracking">
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Favicons & PWA Manifest (>=48x48 included for Google Search SERP favicon) -->
+    <link rel="icon" href="./favicon/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./favicon/android-chrome-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="./favicon/site.webmanifest" />
 
-  gtag('config', 'G-JKBQ4EE7BV');
-</script>
-<!-- end of Google Analytics-->
+    <!-- Browser & Security Metadata -->
+    <meta name="theme-color" content="#03051a" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https: http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*; manifest-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none';"
+    />
 
-<!-- Below is the link that users can use to open Preferences Center to change their preferences. Do not modify the ID parameter. Place it where appropriate, style it as needed. -->
-  <main id="mainSite">
-    <div id="overlay">
-      <h2 class="text-center text-white pt-4">Checking local storage for login...</h2>
-    </div>
-    <a href="download.html" type="button" id="downloadBtn" class="btn float-end shadow py-2 px-4">Download</a>
-    <div class="container py-4">
-      <div class="login-container">
-        <div class="row">
-          <div class="col-md-6">
-            <img src="img/Light Hue Backgrund.jpg" id="loginImg">
-          </div>
-          <div class="col-md-6 right-side text-center p-4">
-          <h1 class="display-5 ">Open Hue Controller</h1>
-            <p class="fs-6">The website <strong class="text-danger">requires</strong> that "insecure content" is allowed</p>
-            <button type="button" class="btn btn-outline-secondary btn-sm btn-round mt-0 mb-3" data-bs-toggle="modal" data-bs-target="#InsecureContentModal">Open guide</button>
-            <h3 class="fs-4">Choose connection option:</h3>
-            <div class="text-center">
-              <button type="button" class="btn btn-primary btn-round" data-bs-toggle="collapse" data-bs-target="#newConnection">Create a new connection</button>
-              <button type="button" class="btn btn-outline-primary btn-round" data-bs-toggle="collapse" data-bs-target="#existingConnection">Use existing connection</button>
-            </div>
-            <div id="connectionType">
-              <div class="collapse show" id="placeholder" data-bs-parent="#connectionType">
-                <p class="text-center mt-3 mb-0 fs-4">The Online Controller</p>
-                <p class="text-center fs-5">Here you can control all your Philips Hue lighting. No installs, and everything is running locally in your browser.</p>
-                <p class="text-center mb-5">Connect to the Philips Hue bridge by using an existing API connection, or create a new one with the website's auto-connect feature. </p>
-              </div>
-              <div class="collapse accordion-collapse" id="existingConnection" data-bs-parent="#connectionType">
-                <br>
-                <form id="loginFrom" class="center-form w-75" action="javascript:void(0);">
-                  <div class="mb-3">
-                    <label for="ipAddress" class="form-label">IP Address</label>
-                    <input type="text" class="form-control form-input" id="ipAddress" placeholder="123.123.12.12" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="accessToken" class="form-label">Access token</label>
-                    <input type="text" class="form-control form-input" id="accessToken" placeholder="123456789abcdefghijklmnopqrstuvwxyz12345678" required>
-                  </div>
-                  <div class="col-auto">
-                    <button type="submit" class="btn btn-primary mb-3 w-100 form-input" id="submitBtn">Connect</button>
-                  </div>
-                </form>
-                <p class="errText pb-4" id="errFromBox"></p>
-              </div>
-              <div class="collapse accordion-collapse" id="newConnection" data-bs-parent="#connectionType">
-                <br>
-                <div id="autoConnect">
-                  <p class="text-center">Looking for a bridge on your network...</p>
-                  <img id="loadingImg" src="svg/loading.svg">
-                </div>
-                <div class="mb-3 pb-4 d-flex flex-column">
-                  <label for="manuallyIp" class="form-label align-self-center">Manually enter IP:</label>
-                  <div class="input-group input-manually-group mb-3 align-self-center">
-                    <input type="text" id="manuallyIp" class="form-control form-input" placeholder="123.123.12.12" >
-                    <button class="btn btn-outline-secondary form-input" id="manuallyIpBtn" type="button">Use this IP</button>
-                  </div>
-                  <p class="errText pb-4" id="errAutoBox"></p>
-                </div>
-              </div>
-            </div>
-            <footer class="text-muted bottom-text-left">
-              <p class="text-center ">&copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Jakob Frederik Lykke <a href="https://github.com/JakobJFL" target="_blank">Github</a> - <a href="https://www.youtube.com/channel/UCf3cp8GGxbCJ8IZfGBmbljw" target="_blank">YouTube</a></p>
-            </footer>
-          </div>
-        </div>  
-      </div>
-    </div>
-  </main>
-  <a href="#" class="btn btn-secondary cookie-btn" id="open_preferences_center">Update Cookies</a>
-  <div class="modal fade" id="InsecureContentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content rounded-15">
-        <div class="modal-body">
-          <h2 class="pt-4">Allow insecure content</h2>
-          <h3 class="pt-4">Step 1</h3>
-          <p>Click on the lock or "Not secure" next to the URL bar. Then click on "Site settings":</p>
-          <img src="img/InsecureContent1.jpg" alt="" width="100%">
-          <h3 class="pt-4">Step 2</h3>
-          <p>Scroll down to find "insecure content" and press allow on the dropdown:</p>
-          <img src="img/InsecureContent2.jpg" alt="" width="100%">
-          <h3 class="pt-4">Step 3</h3>
-          <p>Come back to this website and press done.</p>
-          <h4 class="pt-4">Why do i have to do this?</h4>
-          <p>This website uses a secure(HTTPS) connection and it's talking to a local Philips Hue Bridge over a non-secure connection(HTTP). 
-            This is the only way to communicate with a Philips Hue Bridge. 
-            It's by Philips design and there are no problems with this because everything runs locally and cannot be accessed outside this network.
-            Google Chrome and other browsers are unfortunately not very happy fetching something from a non-secure connection to this website's secure connection.
-            Therefore you have to tell the browser that it's okay, in this case, to fetch insecure content. 
-            The "Not secure" text at the URL bar is also because of this. 
-            This is all running locally, <strong>so none of this affects the security of any device on your network</strong>, if you were ever in doubt.
-            Everything runs on the client side and <strong> nothing is being tracked or stored outside your own network.</strong></p>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary rounded-10" onclick="window.location.reload();">Done</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <script src="bootstrap-5.0.0-dist/js/bootstrap.js"></script>
-  <script src="js/qrcode.min.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/actions.js"></script>
-  <script src="libraries/rgb-color-converter/ColorConverter.js"></script>
-  <script src="js/dashboardSite.js"></script>
-  <script src="js/mainScript.js"></script>
-  <script src="js/login.js"></script>
-  <script src="js/reactOnInput.js"></script>
-</body>
+    <!-- Open Graph / Social Preview -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Open Hue Controller" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://jakobjfl.github.io/Hue-Browser-Controller/" />
+    <meta property="og:title" content="Hue Browser Controller — Your Hue lights, accessible anywhere." />
+    <meta
+      property="og:description"
+      content="Control your Philips Hue lights, rooms, zones, and scenes directly from any browser over secure HTTPS. Free, open-source web controller — no install needed."
+    />
+    <meta
+      property="og:image"
+      content="https://jakobjfl.github.io/Hue-Browser-Controller/ogImage.jpg"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://jakobjfl.github.io/Hue-Browser-Controller/ogImage.jpg"
+    />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="628" />
+    <meta
+      property="og:image:alt"
+      content="Hue Browser Controller — Your Hue lights, accessible anywhere."
+    />
+
+    <!-- Twitter / X Large Summary Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Hue Browser Controller — Your Hue lights, accessible anywhere." />
+    <meta
+      name="twitter:description"
+      content="Control your Philips Hue lights, rooms, zones, and scenes directly from any browser over secure HTTPS. Free, open-source web controller — no install needed."
+    />
+    <meta
+      name="twitter:image"
+      content="https://jakobjfl.github.io/Hue-Browser-Controller/ogImage.jpg"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="Hue Browser Controller — Your Hue lights, accessible anywhere."
+    />
+
+    <!-- Structured Data (Schema.org WebSite + WebApplication) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://jakobjfl.github.io/Hue-Browser-Controller/#website",
+            "name": "Open Hue Controller",
+            "alternateName": ["Hue Browser Controller", "The Hue Browser Controller"],
+            "url": "https://jakobjfl.github.io/Hue-Browser-Controller/"
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://jakobjfl.github.io/Hue-Browser-Controller/#app",
+            "name": "Open Hue Controller",
+            "alternateName": "Hue Browser Controller",
+            "url": "https://jakobjfl.github.io/Hue-Browser-Controller/",
+            "description": "Control your Philips Hue lights, rooms, zones, and scenes directly from any modern browser over secure HTTPS using the official Philips Hue Cloud CLIP v2 API.",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Any (Web Browser)",
+            "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+            "isAccessibleForFree": true,
+            "image": "https://jakobjfl.github.io/Hue-Browser-Controller/ogImage.jpg",
+            "screenshot": [
+              "https://jakobjfl.github.io/Hue-Browser-Controller/img/homepage.jpg",
+              "https://jakobjfl.github.io/Hue-Browser-Controller/img/control-app.jpg"
+            ],
+            "featureList": [
+              "Control Philips Hue rooms, zones, scenes, brightness, color temperature, and RGB colors from any browser",
+              "Remote access from any network over HTTPS via official Philips Hue Cloud OAuth 2.0 and CLIP v2 API",
+              "Automatic virtual link-button Bridge pairing without needing local Bridge IP",
+              "Interactive Demo Mode to preview light and scene controls without signing in"
+            ],
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "license": "https://opensource.org/licenses/MIT",
+            "author": {
+              "@type": "Person",
+              "name": "Jakob Frederik Lykke",
+              "url": "https://github.com/JakobJFL"
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body class="min-h-screen bg-[#03051a] text-slate-100">
+    <div id="app"></div>
+    <noscript>
+      <main class="mx-auto max-w-3xl px-6 py-16 text-slate-100">
+        <h1 class="text-3xl font-semibold">Open Hue Controller — Philips Hue Browser Controller</h1>
+        <p class="mt-4 text-slate-300">
+          Control every Philips Hue light, room, zone, and scene directly from your web browser over
+          secure HTTPS from anywhere in the world. Free, open-source, and privacy-first — no software
+          installation required.
+        </p>
+        <h2 class="mt-8 text-xl font-medium">Key Features</h2>
+        <ul class="mt-3 list-disc space-y-2 pl-5 text-slate-300">
+          <li>Sign in with your Philips Hue account for automatic Bridge pairing over HTTPS (CLIP v2).</li>
+          <li>Adjust room brightness, individual bulb colors, warm-to-cool color temperature, and scenes.</li>
+          <li>Try interactive Demo Mode right in your browser before connecting a Hue Bridge.</li>
+        </ul>
+        <p class="mt-6 text-sm text-slate-400">
+          Please enable JavaScript in your browser to launch Open Hue Controller, or view the source code on
+          <a class="underline" href="https://github.com/JakobJFL/Hue-Browser-Controller">GitHub</a>.
+        </p>
+      </main>
+    </noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

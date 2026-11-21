@@ -1,0 +1,34 @@
+{
+  "name": "open-hue-controller",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc -b && tsc -p worker/tsconfig.json --noEmit && tsc -p tests/tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "test": "node --experimental-strip-types --test \"tests/*.test.ts\""
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.77.0",
+    "vue": "^3.5.21"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261120.1",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.1.13",
+    "@types/node": "^26.6.6",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "eslint": "^10.15.0",
+    "eslint-plugin-vue": "^10.12.1",
+    "globals": "^17.14.0",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.73.0",
+    "vite": "^7.1.5",
+    "vue-tsc": "^3.3.14"
+  }
+}
