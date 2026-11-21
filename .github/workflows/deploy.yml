@@ -45,6 +45,7 @@ jobs:
           VITE_HUE_CLIENT_ID: ${{ vars.VITE_HUE_CLIENT_ID }}
           VITE_HUE_APP_ID: ${{ vars.VITE_HUE_APP_ID }}
           VITE_WORKER_URL: ${{ vars.VITE_WORKER_URL }}
+          VITE_CF_ANALYTICS_TOKEN: ${{ vars.VITE_CF_ANALYTICS_TOKEN }}
         run: npm run build
 
       - name: Upload Pages artifact

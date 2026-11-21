@@ -177,3 +177,4 @@ describe('hueApi & useHue session security and reliability', () => {
     assert.equal(hue.authMode.value, 'logged_out')
   })
 })
+

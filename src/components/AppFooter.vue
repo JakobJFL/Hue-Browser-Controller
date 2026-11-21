@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import PrivacyModal from './PrivacyModal.vue'
+
 const currentYear = new Date().getFullYear()
+const privacyModalOpen = ref(false)
 </script>
 
 <template>
@@ -10,6 +14,13 @@ const currentYear = new Date().getFullYear()
 
     <div class="flex items-center gap-4">
       <span>Open Source &middot; MIT</span>
+      <button
+        type="button"
+        class="font-medium text-slate-200/90 transition hover:text-primary-300 cursor-pointer"
+        @click="privacyModalOpen = true"
+      >
+        Privacy
+      </button>
       <a
         href="https://github.com/JakobJFL/Hue-Browser-Controller"
         target="_blank"
@@ -19,5 +30,8 @@ const currentYear = new Date().getFullYear()
         GitHub
       </a>
     </div>
+
+    <PrivacyModal :open="privacyModalOpen" @close="privacyModalOpen = false" />
   </footer>
 </template>
+
