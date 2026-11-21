@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+>
+  <url>
+    <loc>https://jakobjfl.github.io/Hue-Browser-Controller/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://jakobjfl.github.io/Hue-Browser-Controller/ogImage.jpg</image:loc>
+      <image:title>Hue Browser Controller — Your Hue lights, accessible anywhere.</image:title>
+      <image:caption>Control your Philips Hue lights, rooms, and scenes from any modern web browser over HTTPS.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://jakobjfl.github.io/Hue-Browser-Controller/img/homepage.jpg</image:loc>
+      <image:title>Open Hue Controller Homepage</image:title>
+      <image:caption>Sign in with your Philips Hue account or launch interactive Demo Mode from any browser.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://jakobjfl.github.io/Hue-Browser-Controller/img/control-app.jpg</image:loc>
+      <image:title>Open Hue Controller Light &amp; Scene Dashboard</image:title>
+      <image:caption>Manage Philips Hue rooms, zones, scenes, brightness, color temperature, and RGB color wheels.</image:caption>
+    </image:image>
+  </url>
+</urlset>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jakobjfl.github.io/Hue-Browser-Controller/sitemap.xml

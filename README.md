@@ -1,13 +1,27 @@
-# Open Hue Controller
+<h1 align="center" >The Hue Browser Controller</h1>
 
-A modern, minimalist browser controller for **Philips Hue** built with **Vue 3**, **TypeScript**, **Tailwind CSS**, and **Lucide Icons**, running 100% free (no credit card required) on **GitHub Pages** + a stateless **Cloudflare Worker**.
+## Introduction
 
-- **Zero Mixed-Content Warnings**: Uses the official Philips Hue Cloud OAuth 2.0 + CLIP v2 API over HTTPS (`api.meethue.com`) instead of local `http://` V1 requests.
-- **No Bridge IP or Physical Button Press**: Automatically pairs via virtual link-button on sign-in.
-- **Request-Optimized**: Single-request state hydration (`GET /clip/v2/resource`), instant optimistic UI updates, and debounced sliders (~20 requests/user/day).
-- **Instant Demo Mode**: Test and iterate on UI/UX locally with realistic mock rooms, zones, scenes, and lights before connecting credentials.
+The Hue Browser Controller is a website that enables you to control your Philips Hue lighting directly from the browser. It requires no software installation and works on any network.
+All you have to do is sign in with your Philips Hue account.
+It runs on GitHub Pages with a stateless Cloudflare Worker and uses the official Philips Hue Cloud OAuth 2.0 + CLIP v2 API over HTTPS (`api.meethue.com`).
+
+**[Check out the Hue Browser Controller](https://jakobjfl.github.io/Hue-Browser-Controller/)**
 
 ---
+
+## Geting started
+
+When you enter the websigt you can sign in with your Philips Hue account the same account as you use for the phone app. You can also try out the demo to see how it works.
+
+![The homepage.](https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/public/img/homepage.jpg)
+
+After logging in, you can switch between your rooms and sounds and control the lights in them. You can also see the scenes you created in the phone app and activate them.
+Your login credentials are saved in your browser, so it will remember you and automatically log you in.
+
+![The main app where you can control your lights.](https://raw.githubusercontent.com/JakobJFL/Hue-Browser-Controller/public/img/control-app.jpg)
+
+# Development guide
 
 ## Quick Local Development
 
@@ -30,8 +44,8 @@ Open `http://localhost:5173` and click **Try Demo Mode** to test all controls im
 ### 1. Create a Free Philips Hue Remote API App
 1. Sign in at [https://developers.meethue.com/my-apps/](https://developers.meethue.com/my-apps/) and click **Add new App**.
 2. Fill in:
-   - **App name**: `Open Hue Controller`
-   - **Callback URL**: `https://jakobjfl.github.io/Hue-Browser-Controller/` *(for local testing, you can also register a dev app pointing to `http://localhost:5173/`)*
+   - **App name**: `Open Hue Controller dev`
+   - **Callback URL**: For local testing, register a dev app pointing to `http://localhost:5173/`. For production use, `https://jakobjfl.github.io/Hue-Browser-Controller`.
 3. Copy your **AppId**, **ClientId**, and **ClientSecret**.
 
 ### 2. Deploy the Stateless Cloudflare Worker (`worker/`)

@@ -59,9 +59,23 @@ function toErrorMessage(err: unknown, fallback: string): string {
   return err instanceof Error && err.message ? err.message : fallback
 }
 
+function hasPendingStartupSession(): boolean {
+  try {
+    if (typeof window !== 'undefined' && window.location?.href) {
+      const url = new URL(window.location.href)
+      if (url.searchParams.has('code') || url.searchParams.has('error')) {
+        return true
+      }
+    }
+  } catch {
+    // Ignore invalid URL environments
+  }
+  return loadStoredSession() !== null
+}
+
 const authMode = ref<AuthMode>('logged_out')
 const isLoading = ref(false)
-const isBootstrapping = ref(true)
+const isBootstrapping = ref(hasPendingStartupSession())
 const errorMessage = ref('')
 const selectedGroupId = ref<string | null>(null)
 const activeSceneByGroup = reactive<Record<string, string | null>>({})
@@ -188,7 +202,9 @@ export function useHue() {
   }
 
   async function bootstrap(): Promise<void> {
-    isBootstrapping.value = true
+    if (hasPendingStartupSession()) {
+      isBootstrapping.value = true
+    }
     errorMessage.value = ''
     try {
       let cbSession = null

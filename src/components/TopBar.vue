@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Lightbulb, LogOut, RefreshCw, Settings } from '@lucide/vue'
+import { LogOut, RefreshCw, Settings } from '@lucide/vue'
 
 withDefaults(
   defineProps<{
@@ -23,11 +23,13 @@ const emit = defineEmits<{
   <header class="sticky top-0 z-20 border-b border-white/10 bg-[#03051a]/85 backdrop-blur-xl">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
       <div class="flex items-center gap-2.5">
-        <div
-          class="flex h-9 w-9 items-center justify-center rounded-xl border border-primary-400/30 bg-primary-500/15 text-primary-300 shadow-[0_0_24px_rgba(0,205,146,0.22)]"
-        >
-          <Lightbulb class="h-4 w-4" />
-        </div>
+        <img
+          src="/public/favicon/favicon-32x32.png"
+          alt="Open Hue Controller logo"
+          width="36"
+          height="36"
+          class="h-9 w-9"
+        />
         <span class="text-sm font-semibold tracking-wide text-white/95">Open Hue Controller</span>
         <span
           v-if="isDemo"

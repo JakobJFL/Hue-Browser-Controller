@@ -168,4 +168,12 @@ describe('hueApi & useHue session security and reliability', () => {
       globalThis.fetch = originalFetch
     }
   })
+
+  it('skips initial bootstrapping spinner when no session or OAuth callback is present', async () => {
+    const hue = useHue()
+    assert.equal(hue.isBootstrapping.value, false)
+    await hue.bootstrap()
+    assert.equal(hue.isBootstrapping.value, false)
+    assert.equal(hue.authMode.value, 'logged_out')
+  })
 })
