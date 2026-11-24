@@ -24,7 +24,7 @@ const emit = defineEmits<{
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
       <div class="flex items-center gap-2.5">
         <img
-          src="/public/favicon/favicon-32x32.png"
+          src="/favicon/favicon-32x32.png"
           alt="Open Hue Controller logo"
           width="36"
           height="36"
