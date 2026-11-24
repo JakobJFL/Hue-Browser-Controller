@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertCircle, ArrowRight, Play, Sparkles } from '@lucide/vue'
+import { AlertCircle, ArrowRight, LogIn, Play, Sparkles } from '@lucide/vue'
 import { isOAuthConfigured } from '../config'
 import AppFooter from './AppFooter.vue'
 import AuroraBackground from './AuroraBackground.vue'
@@ -32,7 +32,7 @@ const configured = isOAuthConfigured()
     <header class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-4 sm:px-6">
       <div class="flex items-center gap-2.5">
         <img
-          src="/public/favicon/favicon-32x32.png"
+          src="/favicon/favicon-32x32.png"
           alt="Open Hue Controller logo"
           width="36"
           height="36"
@@ -97,7 +97,7 @@ const configured = isOAuthConfigured()
               @click="emit('login')"
             >
               <span>{{ isAuthenticating ? 'Redirecting to Philips Hue…' : 'Sign in with Philips Hue' }}</span>
-              <ArrowRight class="h-4 w-4" />
+              <LogIn class="h-4 w-4" />
             </button>
 
             <button
@@ -108,6 +108,10 @@ const configured = isOAuthConfigured()
               <Play class="h-4 w-4 text-secondary-400" />
               <span>Try Demo Mode</span>
             </button>
+            <a href="https://www.youtube.com/watch?v=JujCjcH_8R8" target="_blank" rel="noopener noreferrer" class="inline-flex w-full items-center justify-center gap-1.5 text-xs font-medium text-slate-300/75 transition hover:text-primary-300">
+              <span>Watch YouTube Video</span>
+              <ArrowRight class="h-3 w-3" />
+            </a>
           </div>
 
           <p v-if="!configured" class="mt-5 text-[11px] leading-relaxed text-slate-400/85">
